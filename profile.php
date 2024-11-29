@@ -1,12 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <?php
-$userInfo = [
-    "username" => "Akshay",
-    "email" => "9Dqk2@example.com",
-]
+include 'db.php';
+session_start();
+$sql = "SELECT * FROM users WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+$userData = $result->fetch_assoc(); // Get user data once
 
-    ?>
+$totalQuiz = "SELECT count(*) as total_quiz FROM quiz_results WHERE user_id = ?";
+$stmt = $conn->prepare($totalQuiz);
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$quizResult = $stmt->get_result();
+$totalQuizCount = $quizResult->fetch_assoc();
+
+$avgScore = "SELECT AVG(score) as avg_score FROM quiz_results WHERE user_id = ?";
+$stmt = $conn->prepare($avgScore);
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$avgResult = $stmt->get_result();
+$avgScore = $avgResult->fetch_assoc();
+
+$leaderBoardRank = "select rank() over (order by score desc) as rank, score from quiz_results where user_id = ?";
+$stmt = $conn->prepare($leaderBoardRank);
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$rankResult = $stmt->get_result();
+$leaderBoardRank = $rankResult->fetch_assoc();
+
+$userInfo = [
+    "username" => $_SESSION['username'],
+    "email" => $userData['email'], // Now using the first query's result
+    "totalQuiz" => $totalQuizCount['total_quiz'], // Using the second query's result
+    "avgScore" => $avgScore['avg_score'],
+    "leaderBoardRank" => $leaderBoardRank['rank']
+];
+
+
+?>
 
 <head>
     <meta charset="UTF-8">
@@ -123,7 +157,7 @@ $userInfo = [
             <div class="flex justify-between items-center py-4">
                 <div class="text-2xl font-bold text-blue-600">QuizCraft</div>
                 <ul class="flex space-x-4">
-                    <li><a href="index.php" class="text-gray-700 hover:text-blue-600">Home</a></li>
+                    <li><a href="home.php" class="text-gray-700 hover:text-blue-600">Home</a></li>
                     <li><a href="quizz.php" class="text-gray-700 hover:text-blue-600">Quizzes</a></li>
                     <li><a href="leaderboard.php" class="text-gray-700 hover:text-blue-600">Leaderboard</a></li>
                     <li><a href="profile.php" class="text-gray-700 hover:text-blue-600">Profile</a></li>
@@ -143,7 +177,6 @@ $userInfo = [
             <div>
                 <h1 class="text-4xl font-bold"><?php echo htmlspecialchars($userInfo['username']); ?></h1>
                 <div class="flex items-center space-x-4 mt-2">
-                    <span class="bg-blue-500 px-4 py-1 rounded-full text-sm">Level 12</span>
                     <button onclick="openModal()"
                         class="bg-white text-blue-600 px-4 py-1 rounded-full text-sm hover:bg-blue-50">
                         Edit Profile
@@ -159,37 +192,27 @@ $userInfo = [
             <div class="stats-card p-6 rounded-lg shadow-lg zoom-in">
                 <div class="flex items-center justify-between">
                     <img src="https://img.icons8.com/48/quiz.png" alt="Quiz" class="icon-bounce">
-                    <span class="text-green-500 text-sm">↑ 12%</span>
                 </div>
                 <h3 class="text-gray-600 mt-4">Total Quizzes</h3>
-                <p class="text-3xl font-bold text-blue-600">47</p>
+                <p class="text-3xl font-bold text-blue-600"><?php echo $userInfo['totalQuiz']; ?></p>
             </div>
 
             <div class="stats-card p-6 rounded-lg shadow-lg zoom-in">
                 <div class="flex items-center justify-between">
                     <img src="https://img.icons8.com/color/47/accuracy.png" alt="Accuracy" class="icon-bounce">
-                    <span class="text-green-500 text-sm">↑ 5%</span>
                 </div>
                 <h3 class="text-gray-600 mt-4">Average Score</h3>
-                <p class="text-3xl font-bold text-blue-600">83.5%</p>
+                <p class="text-3xl font-bold text-blue-600"><?php echo round($userInfo['avgScore'], 2); ?>% </p>
             </div>
 
-            <div class="stats-card p-6 rounded-lg shadow-lg zoom-in">
-                <div class="flex items-center justify-between">
-                    <img src="https://img.icons8.com/color/48/trophy.png" alt="Points" class="icon-bounce">
-                    <span class="text-green-500 text-sm">↑ 23%</span>
-                </div>
-                <h3 class="text-gray-600 mt-4">Total Points</h3>
-                <p class="text-3xl font-bold text-blue-600">12,450</p>
-            </div>
+
 
             <div class="stats-card p-6 rounded-lg shadow-lg zoom-in">
                 <div class="flex items-center justify-between">
                     <img src="https://img.icons8.com/color/48/leaderboard.png" alt="Rank" class="icon-bounce">
-                    <span class="text-red-500 text-sm">↓ 3</span>
                 </div>
                 <h3 class="text-gray-600 mt-4">Global Rank</h3>
-                <p class="text-3xl font-bold text-blue-600">#42</p>
+                <p class="text-3xl font-bold text-blue-600"># <?php echo $userInfo['leaderBoardRank']; ?></p>
             </div>
         </div>
 

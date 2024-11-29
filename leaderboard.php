@@ -24,7 +24,7 @@ require_once 'db.php';
             <div class="flex justify-between items-center py-4">
                 <div class="text-2xl font-bold text-blue-600">QuizCraft</div>
                 <ul class="flex space-x-4">
-                    <li><a href="index.php" class="text-gray-700 hover:text-blue-600">Home</a></li>
+                    <li><a href="home.php" class="text-gray-700 hover:text-blue-600">Home</a></li>
                     <li><a href="quizz.php" class="text-gray-700 hover:text-blue-600">Quizzes</a></li>
                     <li><a href="leaderboard.php" class="text-gray-700 hover:text-blue-600">Leaderboard</a></li>
                     <li><a href="profile.php" class="text-gray-700 hover:text-blue-600">Profile</a></li>
