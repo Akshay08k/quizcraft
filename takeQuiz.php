@@ -53,53 +53,9 @@ while ($question = $questions_result->fetch_assoc()) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($quiz['name']); ?> - QuizCraft</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <style>
-        /* Prevent text selection and right-click */
-        body {
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-        }
-
-        /* Fullscreen Warning Styles */
-        #fullscreenWarningModal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #fullscreenWarningModal {
-            user-select: text;
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-        }
-
-        #fullscreenWarningModal button {
-            user-select: none;
-            cursor: pointer;
-        }
-
-        #disableOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            z-index: 9999;
-        }
-    </style>
+    <link rel="stylesheet" href="public/css/output.css">
+    <link rel="shortcut icon" href="public/images/logo.jpeg" type="image/x-icon" />
+    <link rel="stylesheet" href="public/css/takeQuiz.css">
 </head>
 
 <body class="bg-gray-100">

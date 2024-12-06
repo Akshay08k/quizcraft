@@ -6,85 +6,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Available Quizzes - QuizCraft</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <style>
-        /* Smooth Transition and Custom Fade In */
-        .fade-in {
-            opacity: 0;
-            animation: fadeIn 1s forwards;
-        }
-
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-            }
-        }
-
-        /* Custom Color Scheme */
-
-        .text-accent {
-            color: #14B8A6;
-        }
-
-
-
-        /* Card Styling */
-        .card {
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .category-card {
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .category-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .category-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background-color: var(--category-color);
-        }
-
-        .quiz-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-
-        .quiz-card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-        }
-
-        .quiz-card:hover {
-            transform: translateY(-10px);
-        }
-    </style>
+    <link rel="stylesheet" href="public/css/output.css">
+    <link rel="stylesheet" href="public/css/quizz.css">
+    <link rel="shortcut icon" href="public/images/logo.jpeg" type="image/x-icon" />
 </head>
 
 <body class="bg-gray-100 text-gray-800 font-sans flex flex-col min-h-screen">
-
-    <!-- Navbar remains unchanged -->
-
 
     <nav class="bg-white shadow-lg fixed top-0 left-0 w-full z-10 fade-in">
         <div class="max-w-7xl mx-auto px-4">
@@ -101,14 +28,12 @@
     </nav>
 
     <main class="flex-grow pt-32 pb-10 text-center fade-in">
-        <!-- Hero Section -->
         <section class="max-w-4xl mx-auto px-4 mb-10">
             <h1 class="text-5xl font-bold text-gray-800 mb-4">Explore Our Quiz Universe</h1>
             <p class="text-xl text-gray-600">Discover exciting quizzes across multiple categories and challenge your
                 knowledge!</p>
         </section>
 
-        <!-- Search Bar -->
         <section class="max-w-3xl mx-auto px-4 mb-10">
             <form method="GET" action="quizz.php" class="flex">
                 <input type="text" name="search" placeholder="Search quizzes by name or category..."
@@ -120,12 +45,10 @@
             </form>
         </section>
 
-        <!-- Categories and Quizzes -->
         <section class="max-w-6xl mx-auto px-4">
             <?php
             $search_query = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
 
-            // Color palette for categories
             $category_colors = [
                 '#3B82F6',
                 '#10B981',
@@ -139,7 +62,6 @@
                 '#7C3AED'
             ];
 
-            // Fetch categories with their quiz counts
             $category_sql = "SELECT c.id, c.name, COUNT(q.id) as quiz_count 
                              FROM categories c
                              LEFT JOIN quizzes q ON c.id = q.category_id
@@ -153,7 +75,6 @@
                 while ($category = $category_result->fetch_assoc()) {
                     $category_color = $category_colors[$color_index % count($category_colors)];
 
-                    // Fetch quizzes for this category
                     $quiz_sql = "SELECT id, name FROM quizzes 
                                  WHERE category_id = {$category['id']}";
 
@@ -192,7 +113,6 @@
         </section>
     </main>
 
-    <!-- Footer remains unchanged -->
     <footer class="bg-primary text-white py-6 mt-10">
         <div class="max-w-7xl mx-auto text-center">
             <p>&copy; 2024 QuizCraft. All Rights Reserved.</p>

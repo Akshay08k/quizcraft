@@ -44,93 +44,10 @@ $userInfo = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - QuizCraft</title>
-    <link rel="stylesheet" href="output.css">
+    <link rel="shortcut icon" href="public/images/logo.jpeg" type="image/x-icon" />
+    <link rel="stylesheet" href="public/css/output.css">
+    <link rel="stylesheet" href="public/css/profile.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .fade-in {
-            opacity: 0;
-            animation: fadeIn 1.5s forwards;
-        }
-
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-            }
-        }
-
-        .zoom-in {
-            transform: scale(0.9);
-            transition: transform 0.3s;
-        }
-
-        .zoom-in:hover {
-            transform: scale(1.05);
-        }
-
-        .icon-bounce {
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
-        .gradient-bg {
-            background: linear-gradient(to right, #1e40af, #3b82f6, transparent);
-        }
-
-        .stats-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background: white;
-            margin: 5% auto;
-            padding: 2rem;
-            border-radius: 1rem;
-            max-width: 500px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            transform: scale(0.95);
-            transition: transform 0.3s;
-        }
-
-        .modal.active .modal-content {
-            transform: scale(1);
-        }
-
-        .close {
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-
-        .close:hover {
-            color: #1e40af;
-        }
-    </style>
 </head>
 
 <body class="bg-gray-100">

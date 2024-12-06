@@ -2,7 +2,6 @@
 session_start();
 include 'db.php';
 
-// Check if user is logged in and quiz is in progress
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['current_quiz_id']) || !isset($_SESSION['quiz_questions'])) {
     header("Location: quizz.php");
     exit();
@@ -12,13 +11,11 @@ $user_id = $_SESSION['user_id'];
 $quiz_id = $_SESSION['current_quiz_id'];
 $quiz_questions = $_SESSION['quiz_questions'];
 
-// Check if quiz was terminated
 $terminated = isset($_GET['terminated']) ? true : false;
 
 $total_questions = count($quiz_questions);
 $correct_answers = 0;
 
-// Check if results have already been processed
 if (!isset($_SESSION['results_processed'])) {
     if (!$terminated) {
         foreach ($quiz_questions as $question_id) {
@@ -41,20 +38,16 @@ if (!isset($_SESSION['results_processed'])) {
             }
             $check_stmt->close();
         }
-
-        // Mark results as processed to prevent recounting
         $_SESSION['results_processed'] = true;
         $_SESSION['final_score'] = $correct_answers;
     }
 } else {
-    // Use the previously calculated score
     $correct_answers = $_SESSION['final_score'];
 }
 
 $total_score = $terminated ? 0 : round(($correct_answers / $total_questions) * 100, 2);
 $score_percentage = $terminated ? 0 : round(($correct_answers / $total_questions) * 100, 2);
 
-// Save result to database
 $insert_sql = "INSERT INTO quiz_attempts (user_id, quiz_id, score) 
                VALUES (?, ?, ?)";
 $date = date('Y-m-d');
@@ -63,7 +56,6 @@ $insert_stmt->bind_param("iii", $user_id, $quiz_id, $total_score);
 $insert_stmt->execute();
 $insert_stmt->close();
 
-// Clear session quiz data
 unset($_SESSION['current_quiz_id']);
 unset($_SESSION['quiz_questions']);
 unset($_SESSION['quiz_start_time']);
@@ -76,7 +68,8 @@ unset($_SESSION['quiz_start_time']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Result - QuizCraft</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="public/css/output.css">
+    <link rel="shortcut icon" href="public/images/logo.jpeg" type="image/x-icon" />
 </head>
 
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">

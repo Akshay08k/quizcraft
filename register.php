@@ -51,19 +51,19 @@ $conn->close();
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QuizCraft | Register</title>
-  <link rel="shortcut icon" href="logo.jpeg" type="image/x-icon" />
+  <link rel="shortcut icon" href="public/images/logo.jpeg" type="image/x-icon" />
   <style>
     body {
       background-image: url(https://img.freepik.com/premium-vector/different-football-silhouettes-seamless-pattern-vector-background_153454-5070.jpg);
     }
   </style>
-  <link rel="stylesheet" href="output.css">
+  <link rel="stylesheet" href="public/css/output.css">
 </head>
 
 <body class="bg-gray-900 flex items-center justify-center h-screen">
   <div class="w-full max-w-md bg-gray-800 shadow-md rounded-lg p-8">
     <h2 class="text-2xl font-semibold text-center text-white mb-6 flex flex-col items-center">
-      <img src="logo.jpeg" alt="QuizCraft Logo" class="mb-4 w-16 h-16 rounded-full" />
+      <img src="public/images/logo.jpeg" alt="QuizCraft Logo" class="mb-4 w-16 h-16 rounded-full" />
       <span class="text-3xl font-bold text-yellow-500">QuizCraft Register</span>
     </h2>
 

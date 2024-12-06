@@ -2,16 +2,10 @@
 session_start();
 include 'db.php';
 
-// Check if user is logged in
-// if (!isset($_SESSION['user_id'])) {
-//     header("Location: login.php");
-//     exit();
-// }
 
-// Get quiz ID from URL
+
 $quiz_id = isset($_GET['quiz_id']) ? intval($_GET['quiz_id']) : 0;
 
-// Fetch quiz details
 $quiz_sql = "SELECT * FROM quizzes   WHERE id = ?";
 $quiz_stmt = $conn->prepare($quiz_sql);
 $quiz_stmt->bind_param("i", $quiz_id);
@@ -31,7 +25,8 @@ $quiz = $quiz_result->fetch_assoc();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Instructions - <?php echo htmlspecialchars($quiz['name']); ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="public/css/output.css">
+    <link rel="shortcut icon" href="public/images/logo.jpeg" type="image/x-icon" />
 </head>
 
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
@@ -75,7 +70,7 @@ $quiz = $quiz_result->fetch_assoc();
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const totalQuestions = <?php    
+            const totalQuestions = <?php
             $count_sql = "SELECT COUNT(*) as count FROM questions WHERE quiz_id = ?";
             $count_stmt = $conn->prepare($count_sql);
             $count_stmt->bind_param("i", $quiz_id);
@@ -87,7 +82,6 @@ $quiz = $quiz_result->fetch_assoc();
             const totalTime = totalQuestions * 60;
             const minutes = Math.floor(totalTime / 60);
             const seconds = totalTime % 60;
-
             document.getElementById('total-time').textContent =
                 `${minutes} minutes ${seconds} seconds`;
         });

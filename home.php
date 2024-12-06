@@ -5,51 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QuizCraft</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <style>
-    /* Custom Animations */
-    .fade-in {
-      opacity: 0;
-      animation: fadeIn 1.5s forwards;
-    }
-
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-      }
-    }
-
-    .zoom-in {
-      transform: scale(0.9);
-      transition: transform 0.3s;
-    }
-
-    .zoom-in:hover {
-      transform: scale(1.05);
-    }
-
-    /* Smooth Scrolling */
-    html {
-      scroll-behavior: smooth;
-    }
-
-    /* Icon Animations */
-    .icon-bounce {
-      animation: bounce 2s infinite;
-    }
-
-    @keyframes bounce {
-
-      0%,
-      100% {
-        transform: translateY(0);
-      }
-
-      50% {
-        transform: translateY(-10px);
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="public/css/output.css">
+  <link rel="stylesheet" href="public/css/home.css">
+  <link rel="shortcut icon" href="public/images/logo.jpeg" type="image/x-icon" />
 </head>
 
 <body class="bg-gray-100">

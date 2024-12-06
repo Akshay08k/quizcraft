@@ -62,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QuizCraft | Forgot Password</title>
-    <link rel="shortcut icon" href="logo.jpeg" type="image/x-icon" />
+    <link rel="shortcut icon" href="public/images/logo.jpeg" type="image/x-icon" />
     <style>
         body {
             background-image: url(https://img.freepik.com/premium-vector/different-football-silhouettes-seamless-pattern-vector-background_153454-5070.jpg);
@@ -80,7 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </h2>
 
         <p class="text-gray-300 text-center mb-6">
-            Enter your email and we’ll send you a link to reset your password.
+            Enter your email and we'll send you a link to reset your password.
         </p>
 
         <?php if (!empty($error)): ?>
