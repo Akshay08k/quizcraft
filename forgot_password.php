@@ -1,14 +1,13 @@
 <?php
+include 'db.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 require 'env.php';
 require 'vendor/autoload.php';
 
-$error = ""; // To store error messages
-$success = ""; // To store success message
+$error = "";
+$success = "";
 
-// Database connection
-$conn = new mysqli("localhost", "root", "", "quizcraft");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
@@ -21,7 +20,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($stmt->num_rows > 0) {
         $stmt->bind_result($userId);
         $stmt->fetch();
-        $token = bin2hex(random_bytes(50)); // Generate a random token
+        $token = bin2hex(random_bytes(50));
+        date_default_timezone_set('Asia/Kolkata');
         $expires = date("Y-m-d H:i:s", strtotime("+10 minutes"));
 
         $stmt = $conn->prepare("UPDATE users SET pass_reset_token = ?, reset_expires = ? WHERE id = ?");

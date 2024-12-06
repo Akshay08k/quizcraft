@@ -1,6 +1,10 @@
 <?php
 session_start();
 // Authentication check
+if ($_SESSION['admin_logged_in'] !== true) {
+    header('Location: login.php');
+    exit();
+}
 require_once('../db.php');
 
 $quiz_id = intval($_GET['id']);

@@ -1,12 +1,13 @@
 <?php
 session_start();
 require_once('../db.php');
+$mysqli = $conn;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = $mysqli->real_escape_string($_POST['username']);
+    $email = $mysqli->real_escape_string($_REQUEST['email']);
     $password = $_POST['password'];
 
-    $result = $mysqli->query("SELECT * FROM users WHERE username = '$username'");
+    $result = $mysqli->query("SELECT * FROM users WHERE email = '$email'");
     $admin = $result->fetch_assoc();
 
     if ($admin && password_verify($password, $admin['password'])) {
@@ -36,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="bg-red-100 text-red-700 p-3 rounded mb-4"><?php echo $error; ?></div>
         <?php endif; ?>
         <form method="POST">
-            <input type="text" name="username" placeholder="Username" class="w-full p-2 border rounded mb-4" required>
+            <input type="email" name="email" placeholder="email" class="w-full p-2 border rounded mb-4" required>
             <input type="password" name="password" placeholder="Password" class="w-full p-2 border rounded mb-4"
                 required>
             <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">

@@ -1,3 +1,4 @@
+<?php include 'db.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <?php
@@ -8,45 +9,42 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $result = $stmt->get_result();
-$userData = $result->fetch_assoc(); // Get user data once
+$userData = $result->fetch_assoc();
 
-$totalQuiz = "SELECT count(*) as total_quiz FROM quiz_results WHERE user_id = ?";
+$totalQuiz = "SELECT count(*) as total_quiz FROM quiz_attempts WHERE user_id = ?";
 $stmt = $conn->prepare($totalQuiz);
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $quizResult = $stmt->get_result();
 $totalQuizCount = $quizResult->fetch_assoc();
 
-$avgScore = "SELECT AVG(score) as avg_score FROM quiz_results WHERE user_id = ?";
+$avgScore = "SELECT AVG(score) as avg_score FROM quiz_attempts WHERE user_id = ?";
 $stmt = $conn->prepare($avgScore);
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $avgResult = $stmt->get_result();
 $avgScore = $avgResult->fetch_assoc();
 
-$leaderBoardRank = "select rank() over (order by score desc) as rank, score from quiz_results where user_id = ?";
+$leaderBoardRank = "select rank() over (order by score desc) as rank, score from quiz_attempts where user_id = ?";
 $stmt = $conn->prepare($leaderBoardRank);
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $rankResult = $stmt->get_result();
 $leaderBoardRank = $rankResult->fetch_assoc();
-
 $userInfo = [
     "username" => $_SESSION['username'],
-    "email" => $userData['email'], // Now using the first query's result
-    "totalQuiz" => $totalQuizCount['total_quiz'], // Using the second query's result
+    "email" => $userData['email'],
+    "totalQuiz" => $totalQuizCount['total_quiz'],
     "avgScore" => $avgScore['avg_score'],
     "leaderBoardRank" => $leaderBoardRank['rank']
 ];
-
-
 ?>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - QuizCraft</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="output.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .fade-in {
@@ -132,26 +130,10 @@ $userInfo = [
         .close:hover {
             color: #1e40af;
         }
-
-        /* Progress Bar Animation */
-        @keyframes progressFill {
-            from {
-                width: 0;
-            }
-
-            to {
-                width: var(--progress);
-            }
-        }
-
-        .progress-bar-fill {
-            animation: progressFill 1s ease-out forwards;
-        }
     </style>
 </head>
 
 <body class="bg-gray-100">
-    <!-- Navbar -->
     <nav class="bg-white shadow-lg fixed top-0 left-0 w-full z-50 fade-in">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
@@ -166,7 +148,6 @@ $userInfo = [
         </div>
     </nav>
 
-    <!-- Hero Profile Section -->
     <section class="relative h-64 flex items-center justify-center text-white gradient-bg mb-8 mt-16">
         <div class="absolute inset-0 bg-gradient-to-r from-blue-800 via-blue-600 to-transparent opacity-75"></div>
         <div class="relative z-10 max-w-7xl w-full mx-auto px-4 flex items-center space-x-8 fade-in">
@@ -187,7 +168,6 @@ $userInfo = [
     </section>
 
     <main class="max-w-7xl mx-auto px-4 pb-10">
-        <!-- Statistics Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="stats-card p-6 rounded-lg shadow-lg zoom-in">
                 <div class="flex items-center justify-between">
@@ -216,76 +196,68 @@ $userInfo = [
             </div>
         </div>
 
-        <!-- Analytics Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-lg shadow-lg fade-in">
-                <h2 class="text-2xl font-bold text-blue-600 mb-4">Performance Trend</h2>
-                <canvas id="progressChart" height="200"></canvas>
-            </div>
-
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 lg:h-[400px] fade-in">
             <div class="bg-white p-6 rounded-lg shadow-lg fade-in">
                 <h2 class="text-2xl font-bold text-blue-600 mb-4">Category Mastery</h2>
                 <canvas id="categoryChart" height="200"></canvas>
             </div>
-        </div>
-        <!-- Recent Achievements -->
 
-
-        <!-- Quiz History -->
-        <section class="bg-white p-6 rounded-lg shadow-lg fade-in">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-blue-600">Quiz History</h2>
-                <select
-                    class="border rounded-lg px-4 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option>All Time</option>
-                    <option>This Month</option>
-                    <option>This Week</option>
-                </select>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-blue-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-600 uppercase">Quiz</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-600 uppercase">Score</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-600 uppercase">Time</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-600 uppercase">Date</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-600 uppercase">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <?php
-                        $quizHistory = [
-                            ["quiz" => "Advanced Mathematics", "score" => 92, "time" => "45m", "date" => "2024-10-15"],
-                            ["quiz" => "World History", "score" => 88, "time" => "30m", "date" => "2024-10-12"],
-                            ["quiz" => "Physics Fundamentals", "score" => 85, "time" => "35m", "date" => "2024-10-10"],
-                        ];
-                        foreach ($quizHistory as $quiz): ?>
-                            <tr class="hover:bg-blue-50 transition duration-150">
-                                <td class="px-6 py-4"><?php echo $quiz['quiz']; ?></td>
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center space-x-2">
-                                        <span><?php echo $quiz['score']; ?>%</span>
-                                        <div class="w-24 h-2 bg-gray-200 rounded-full">
-                                            <div class="h-full bg-blue-600 rounded-full progress-bar-fill"
-                                                style="--progress: <?php echo $quiz['score']; ?>%"></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4"><?php echo $quiz['time']; ?></td>
-                                <td class="px-6 py-4"><?php echo $quiz['date']; ?></td>
-                                <td class="px-6 py-4">
-                                    <button class="text-blue-600 hover:text-blue-800">Review</button>
-                                </td>
+            <section class="bg-white p-6 rounded-lg shadow-lg fade-in" style="max-height: 660px; overflow-y: auto;">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-blue-600">Quiz History</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-blue-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-blue-600 uppercase">Quiz</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-blue-600 uppercase">Score</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-blue-600 uppercase">Date</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <?php
+                            $sql = "SELECT * FROM quiz_attempts WHERE user_id = ?";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bind_param("i", $_SESSION['user_id']);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            $quizHistory = $result->fetch_all(MYSQLI_ASSOC);
+
+                            foreach ($quizHistory as $quiz):
+                                $quizNameQuery = "SELECT * FROM quizzes WHERE id = ?";
+                                $quizNameStmt = $conn->prepare($quizNameQuery);
+                                $quizNameStmt->bind_param("i", $quiz['quiz_id']);
+                                $quizNameStmt->execute();
+                                $quizNameResult = $quizNameStmt->get_result();
+                                $quizName = $quizNameResult->fetch_assoc();
+                                ?>
+                                <tr class="hover:bg-blue-50 transition duration-150">
+                                    <td class="px-6 py-4"><?php echo htmlspecialchars($quizName['name']); ?></td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-24 h-2 bg-gray-200 rounded-full">
+                                                <div class="h-full bg-blue-600 rounded-full"
+                                                    style="width: <?php echo min(max(($quiz['score'] / 20) * 100, 0), 100); ?>%;">
+                                                </div>
+                                            </div>
+                                            <span class="text-sm text-gray-700">
+                                                <?php echo $quiz['score']; ?> / 20
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4"><?php echo $quiz['completed_at']; ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+
     </main>
 
-    <!-- Edit Profile Modal -->
     <div id="editProfileModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
@@ -334,44 +306,44 @@ $userInfo = [
             }, 300);
         }
 
-        const progressCtx = document.getElementById('progressChart').getContext('2d');
-        new Chart(progressCtx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Average Score',
-                    data: [75, 82, 78, 85, 82, 90],
-                    borderColor: '#2563eb',
-                    tension: 0.4,
-                    fill: true,
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)'
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                }
-            }
-        });
+
 
         const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        <?php
+        // Fetch categories
+        $sql = "SELECT * FROM categories ORDER BY name";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $categories = $result->fetch_all(MYSQLI_ASSOC);
+
+        $marksSql = "
+    SELECT 
+        c.name AS category_name, 
+        COALESCE(SUM(qa.score), 0) AS score
+    FROM categories c
+    LEFT JOIN quizzes q ON q.category_id = c.id
+    LEFT JOIN quiz_attempts qa ON qa.quiz_id = q.id AND qa.user_id = ?
+    GROUP BY c.id, c.name
+    ORDER BY c.name
+";
+        $marksStmt = $conn->prepare($marksSql);
+        $marksStmt->bind_param("i", $_SESSION['user_id']);
+        $marksStmt->execute();
+        $marksResult = $marksStmt->get_result();
+        $marks = $marksResult->fetch_all(MYSQLI_ASSOC);
+
+        // Extract scores and labels
+        $categoryLabels = array_column($marks, 'category_name');
+        $scores = array_column($marks, 'score');
+        ?>
         new Chart(categoryCtx, {
             type: 'radar',
             data: {
-                labels: ['General Knowledge & Current Affairs', 'Science & Technology', 'Mathematics', 'Arts & Entertainment', 'Literature & Languages', 'Sports & Fitness', 'Business & Economy', 'History & Geography', 'Education & Academics', 'Pop Culture & Media'],
+                labels: <?php echo json_encode($categoryLabels); ?>,
                 datasets: [{
                     label: 'Mastery Level',
-                    data: [85, 92, 78, 88, 95, 10, 20, 30, 40, 50],
+                    data: <?php echo json_encode($scores); ?>,
                     backgroundColor: 'rgba(37, 99, 235, 0.2)',
                     borderColor: '#2563eb',
                     pointBackgroundColor: '#2563eb',
@@ -385,9 +357,9 @@ $userInfo = [
                 scales: {
                     r: {
                         beginAtZero: true,
-                        max: 100,
+                        max: 20,
                         ticks: {
-                            stepSize: 20 // Changed from 40 to ensure finer control within the max 100
+                            stepSize: 5
                         }
                     }
                 }

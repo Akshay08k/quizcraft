@@ -79,9 +79,9 @@ require_once 'db.php';
 
                         
                         // User data to be included
-                        if ($_SESSION['username'] == $row['username']) {
-                            $userData = ["username" => $row['username'], "score" => $row['score'], "completed" => $row['completed']];
-                        }
+                        // if ($_SESSION['username'] == $row['username']) {
+                        //     $userData = ["username" => $row['username'], "score" => $row['score'], "completed" => $row['completed']];
+                        // }
 
                         // Sort the leaderboard by score (highest to lowest)
                         

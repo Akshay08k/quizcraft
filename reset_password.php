@@ -1,13 +1,13 @@
 <?php
-$conn = new mysqli("localhost", "root", "", "quizcraft");
 
-$error = "";  // To store error messages
-$success = "";  // To store success message
+include 'db.php';
+
+$error = "";
+$success = "";
 
 if (isset($_GET['token'])) {
     $token = $_GET['token'];
-
-    // Check if the token is valid and not expired
+    date_default_timezone_set('Asia/Kolkata');
     $stmt = $conn->prepare("SELECT id FROM users WHERE pass_reset_token = ? AND reset_expires > NOW()");
     $stmt->bind_param("s", $token);
     $stmt->execute();

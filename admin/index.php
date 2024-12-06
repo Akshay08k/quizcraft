@@ -1,15 +1,14 @@
 <?php
 session_start();
 // Add authentication check
-// if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== false) {
-//     header('Location: login.php');
-//     exit();
-// }
 
-// Database connection
+if ($_SESSION['admin_logged_in'] !== true) {
+    header('Location: login.php');
+    exit();
+}
+
 require_once('../db.php');
 
-// Fetch website analytics
 $userCount = mysqli_query($conn, "SELECT COUNT(*) as count FROM users")->fetch_assoc()['count'];
 $quizCount = mysqli_query($conn, "SELECT COUNT(*) as count FROM quizzes")->fetch_assoc()['count'];
 $totalPlays = mysqli_query($conn, "SELECT COUNT(*) as count FROM quiz_attempts")->fetch_assoc()['count'];

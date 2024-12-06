@@ -18,43 +18,48 @@ $terminated = isset($_GET['terminated']) ? true : false;
 $total_questions = count($quiz_questions);
 $correct_answers = 0;
 
-// If not terminated, validate answers
-if (!$terminated) {
-    foreach ($quiz_questions as $question_id) {
-        // Retrieve the correct answer from the database
-        $check_sql = "SELECT question_text, options, correct_answer FROM questions WHERE id = ?";
-        $check_stmt = $conn->prepare($check_sql);
-        $check_stmt->bind_param("i", $question_id);
-        $check_stmt->execute();
-        $result = $check_stmt->get_result();
+// Check if results have already been processed
+if (!isset($_SESSION['results_processed'])) {
+    if (!$terminated) {
+        foreach ($quiz_questions as $question_id) {
+            $check_sql = "SELECT question_text, options, correct_answer FROM questions WHERE id = ?";
+            $check_stmt = $conn->prepare($check_sql);
+            $check_stmt->bind_param("i", $question_id);
+            $check_stmt->execute();
+            $result = $check_stmt->get_result();
 
-        if ($result->num_rows > 0) {
-            $question = $result->fetch_assoc();
+            if ($result->num_rows > 0) {
+                $question = $result->fetch_assoc();
 
-            // Get user's answer
-            $user_answer = isset($_POST['question_' . $question_id]) ? $_POST['question_' . $question_id] : null;
+                $user_answer = isset($_POST['question_' . $question_id]) ? $_POST['question_' . $question_id] : null;
 
-            // Parse options (assuming it's stored as a JSON string)
-            $options = json_decode($question['options'], true);
+                $options = json_decode($question['options'], true);
 
-            // Check if the user's answer matches the correct answer
-            if ($user_answer !== null && $user_answer == $question['correct_answer']) {
-                $correct_answers++;
+                if ($user_answer !== null && $user_answer == $question['correct_answer']) {
+                    $correct_answers++;
+                }
             }
+            $check_stmt->close();
         }
-        $check_stmt->close();
+
+        // Mark results as processed to prevent recounting
+        $_SESSION['results_processed'] = true;
+        $_SESSION['final_score'] = $correct_answers;
     }
+} else {
+    // Use the previously calculated score
+    $correct_answers = $_SESSION['final_score'];
 }
 
-// Calculate percentage
+$total_score = $terminated ? 0 : round(($correct_answers / $total_questions) * 100, 2);
 $score_percentage = $terminated ? 0 : round(($correct_answers / $total_questions) * 100, 2);
 
 // Save result to database
-$insert_sql = "INSERT INTO quiz_results (user_id, quiz_id, total_questions, correct_answers, score_percentage, attempt_date) 
-               VALUES (?, ?, ?, ?, ?, ?)";
+$insert_sql = "INSERT INTO quiz_attempts (user_id, quiz_id, score) 
+               VALUES (?, ?, ?)";
 $date = date('Y-m-d');
 $insert_stmt = $conn->prepare($insert_sql);
-$insert_stmt->bind_param("iiidsi", $user_id, $quiz_id, $total_questions, $correct_answers, $score_percentage, $date);
+$insert_stmt->bind_param("iii", $user_id, $quiz_id, $total_score);
 $insert_stmt->execute();
 $insert_stmt->close();
 
@@ -79,6 +84,8 @@ unset($_SESSION['quiz_start_time']);
         <?php if ($terminated): ?>
             <h1 class="text-4xl font-bold mb-6 text-red-600">Quiz Terminated</h1>
             <p class="text-xl mb-6">You left the quiz screen and did not return in time.</p>
+            <?php sleep(10);
+            header("Location: quizzes.php") ?>
         <?php else: ?>
             <h1 class="text-4xl font-bold mb-6 text-green-600">Quiz Completed!</h1>
 

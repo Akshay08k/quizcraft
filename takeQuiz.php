@@ -62,12 +62,87 @@ while ($question = $questions_result->fetch_assoc()) {
             -moz-user-select: none;
             -ms-user-select: none;
         }
+
+        /* Fullscreen Warning Styles */
+        #fullscreenWarningModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #fullscreenWarningModal {
+            user-select: text;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+        }
+
+        #fullscreenWarningModal button {
+            user-select: none;
+            cursor: pointer;
+        }
+
+        #disableOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 9999;
+        }
     </style>
 </head>
 
 <body class="bg-gray-100">
+    <div id="initialFullscreenModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-xl text-center max-w-md">
+            <h2 class="text-3xl font-bold text-red-600 mb-4">Quiz Instructions</h2>
+            <p class="text-lg mb-6">To start the quiz, you must:</p>
+            <ul class="list-disc list-inside text-left mb-6">
+                <li>Enable Fullscreen Mode</li>
+                <li>Do not switch tabs or minimize the window</li>
+                <li>Complete the quiz in one sitting</li>
+            </ul>
+            <div class="flex justify-center space-x-4">
+                <button id="startFullscreenBtn" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">
+                    Start Quiz in Fullscreen
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="fullscreenWarningModal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg text-center max-w-md">
+            <h2 class="text-3xl font-bold text-red-600 mb-4">Quiz Warning!</h2>
+            <p class="text-lg mb-6">You have left the fullscreen mode. This will terminate your quiz if not resumed.</p>
+            <div class="flex justify-center space-x-4">
+                <button id="resumeQuizBtn" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">
+                    Resume Quiz
+                </button>
+                <button id="terminateQuizBtn" class="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600">
+                    End Quiz
+                </button>
+            </div>
+            <div class="mt-4">
+                <p>Time Remaining to Resume: <span id="warningCountdown" class="font-bold text-red-500">10</span>
+                    seconds</p>
+            </div>
+        </div>
+    </div>
+
+
     <div class="container mx-auto px-4 py-8">
-        <div id="startQuizContainer" class="text-center">
+        <div id="startQuizContainer" class="text-center" style="display: none;">
             <button id="startQuizBtn" class="bg-blue-500 text-white px-6 py-3 rounded">Start Quiz</button>
         </div>
 
@@ -119,40 +194,109 @@ while ($question = $questions_result->fetch_assoc()) {
         </div>
     </div>
 
-    <!-- Fullscreen Warning Modal -->
-    <div id="fullscreenWarningModal"
-        class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-lg text-center">
-            <h2 class="text-2xl font-bold mb-4">Warning!</h2>
-            <p class="mb-4">You have left the quiz screen. Return to fullscreen or the quiz will be terminated.</p>
-            <div id="warningCountdown" class="text-4xl font-bold text-red-500">10</div>
-        </div>
-    </div>
-
     <script>
+        let isFullscreen = false;
+        let warningTimeout = null;
+        let warningCountdown = 10;
+        const initialFullscreenModal = document.getElementById('initialFullscreenModal');
+        const startFullscreenBtn = document.getElementById('startFullscreenBtn');
+        const fullscreenWarningModal = document.getElementById('fullscreenWarningModal');
+        const warningCountdownElement = document.getElementById('warningCountdown');
+        const resumeQuizBtn = document.getElementById('resumeQuizBtn');
+        const terminateQuizBtn = document.getElementById('terminateQuizBtn');
+        const startQuizContainer = document.getElementById('startQuizContainer');
+        const quizContainer = document.getElementById('quiz-container');
+        const startQuizBtn = document.getElementById('startQuizBtn');
+
+        // Initial Fullscreen Setup
+        startFullscreenBtn.addEventListener('click', () => {
+            initialFullscreenModal.style.display = 'none';
+            enterFullscreen();
+            startQuizContainer.style.display = 'block';
+        });
+
+        function enterFullscreen() {
+            const element = document.documentElement;
+            if (element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if (element.mozRequestFullScreen) {
+                element.mozRequestFullScreen();
+            } else if (element.webkitRequestFullscreen) {
+                element.webkitRequestFullscreen();
+            } else if (element.msRequestFullscreen) {
+                element.msRequestFullscreen();
+            }
+            isFullscreen = true;
+        }
+
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+            isFullscreen = false;
+        }
+
+        function startWarningCountdown() {
+            warningCountdown = 10;
+            warningCountdownElement.textContent = warningCountdown;
+            fullscreenWarningModal.style.display = 'flex';
+
+            warningTimeout = setInterval(() => {
+                warningCountdown--;
+                warningCountdownElement.textContent = warningCountdown;
+
+                if (warningCountdown <= 0) {
+                    clearInterval(warningTimeout);
+                    // Terminate quiz
+                    window.location.href = 'submit_quiz.php?terminated=true';
+                }
+            }, 1000);
+        }
+
+        // Fullscreen change event listeners
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+        function handleFullscreenChange() {
+            if (!document.fullscreenElement && isFullscreen) {
+                startWarningCountdown();
+            }
+        }
+
+        // Resume Quiz Button
+        resumeQuizBtn.addEventListener('click', () => {
+            clearInterval(warningTimeout);
+            fullscreenWarningModal.style.display = 'none';
+            enterFullscreen();
+        });
+
+        // Terminate Quiz Button
+        terminateQuizBtn.addEventListener('click', () => {
+            clearInterval(warningTimeout);
+            window.location.href = 'submit_quiz.php?terminated=true';
+        });
+
+        // Quiz Start Logic
+        startQuizBtn.addEventListener('click', function () {
+            this.style.display = 'none';
+            quizContainer.style.display = 'block';
+            startTimer();
+        });
+
         const totalQuestions = <?php echo $total_questions; ?>;
         const totalTime = totalQuestions * 60; // seconds
         let remainingTime = totalTime;
         let currentQuestionIndex = 0;
         const questions = document.querySelectorAll('.quiz-question');
         let countdownInterval = null;
-        let warningInterval = null;
-        let warningCountdownValue = 10;
-
-        document.getElementById('startQuizBtn').addEventListener('click', function () {
-            requestFullscreen();
-            this.style.display = 'none'; 
-            document.getElementById('quiz-container').style.display = 'block'; // Show quiz container
-            startTimer();
-        });
-
-        function requestFullscreen() {
-            const container = document.getElementById('quiz-container');
-            if (container.requestFullscreen) container.requestFullscreen();
-            else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
-            else if (container.mozRequestFullScreen) container.mozRequestFullScreen();
-            else if (container.msRequestFullscreen) container.msRequestFullscreen();
-        }
 
         function startTimer() {
             updateTimer();
@@ -179,20 +323,20 @@ while ($question = $questions_result->fetch_assoc()) {
             questions[currentQuestionIndex].style.display = 'block';
         }
 
+        // Disable right-click and dev tools
         document.addEventListener('contextmenu', e => e.preventDefault());
         document.addEventListener('keydown', (e) => {
-            if (
-                (e.key === 'F12' && (e.ctrlKey || e.shiftKey))) {
+            if ((e.key === 'F12' && (e.ctrlKey || e.shiftKey))) {
                 e.preventDefault();
             }
         });
 
+        // Initial setup
         window.onload = () => {
-            document.getElementById('quiz-container').style.display = 'none';
+            quizContainer.style.display = 'none';
+            startQuizContainer.style.display = 'none';
         };
     </script>
-
-
 </body>
 
 </html>

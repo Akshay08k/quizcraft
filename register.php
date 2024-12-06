@@ -1,28 +1,19 @@
 <?php
 session_start();
+include 'db.php';
 
-// Database connection
-$conn = new mysqli("localhost", "root", "", "quizcraft");
-if ($conn->connect_error) {
-  die("Connection Failed: " . $conn->connect_error);
-}
-
-// Initialize variables for error or success messages
 $success_message = "";
 $error_message = "";
 
-// Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $username = $_POST['name'];
   $email = $_POST['email'];
   $password = $_POST['password'];
   $confirm_password = $_POST['confirm_password'];
 
-  // Check if password and confirm password match
   if ($password !== $confirm_password) {
     $error_message = "Passwords do not match!";
   } else {
-    // Check if email already exists
     $check_email_sql = "SELECT * FROM users WHERE email = ?";
     $stmt = $conn->prepare($check_email_sql);
     $stmt->bind_param("s", $email);
@@ -32,14 +23,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows > 0) {
       $error_message = "An account with this email already exists!";
     } else {
-      // Insert new user if no errors
       $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
       if ($stmt) {
-        // Hash the password
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
         $stmt->bind_param("sss", $username, $email, $hashedPassword);
 
-        // Execute the statement
         if ($stmt->execute()) {
           $success_message = "Registration successful! You can now log in.";
         } else {
@@ -53,7 +41,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   }
 }
 
-// Close the connection
 $conn->close();
 ?>
 
@@ -80,7 +67,6 @@ $conn->close();
       <span class="text-3xl font-bold text-yellow-500">QuizCraft Register</span>
     </h2>
 
-    <!-- Display success or error messages -->
     <?php if (!empty($success_message)): ?>
       <div class="bg-green-500 text-white p-2 mb-4 rounded">
         <?php echo $success_message; ?>
@@ -131,7 +117,7 @@ $conn->close();
     <div class="mt-6 text-center">
       <p class="text-gray-400">
         Already have an account?
-        <a href="login.php" class="text-blue-400 hover:underline">Login</a>
+        <a href="index.php" class="text-blue-400 hover:underline">Login</a>
       </p>
     </div>
   </div>

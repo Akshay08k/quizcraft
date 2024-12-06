@@ -1,15 +1,12 @@
 <?php
-session_start();
-// Authentication check
-// if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-//     header('Location: login.php');
-//     exit();
-// }
-
-// Database conn
 require_once('../db.php');
+session_start();
+if ($_SESSION['admin_logged_in'] !== true) {
+    header('Location: login.php');
+    exit();
+}
 
-// Fetch quizzes with category information
+
 $query = "
     SELECT 
         q.id, 
@@ -26,26 +23,18 @@ $query = "
 ";
 $result = mysqli_query($conn, $query);
 
-// Handle quiz deletion
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $quiz_id = intval($_GET['delete']);
 
-    // Begin transaction
     mysqli_begin_transaction($conn);
 
     try {
-        // Delete related answers
-
-        // Delete related questions
         mysqli_query($conn, "DELETE FROM questions WHERE quiz_id = $quiz_id");
 
-        // Delete quiz attempts
         mysqli_query($conn, "DELETE FROM quiz_attempts WHERE quiz_id = $quiz_id");
 
-        // Delete the quiz
-        mysqli_query($conn, "DELETE FROM     WHERE id = $quiz_id");
+        mysqli_query($conn, "DELETE FROM  WHERE id = $quiz_id");
 
-        // Commit transaction
         mysqli_commit($conn);
 
         header('Location: quizzes.php?success=deleted');
@@ -120,13 +109,10 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
                             <td class="p-3"><?php echo $quiz['attempt_count']; ?></td>
                             <td class="p-3">
                                 <div class="flex space-x-2">
-                                    <a href="edit_quiz.php?id=<?php echo $quiz['id']; ?>"
-                                        class="text-blue-600 hover:text-blue-800">
-                                        Edit
-                                    </a>
+
                                     <a href="quiz_details.php?id=<?php echo $quiz['id']; ?>"
                                         class="text-green-600 hover:text-green-800">
-                                        View
+                                        Edit
                                     </a>
                                     <a href="quizzes.php?delete=<?php echo $quiz['id']; ?>"
                                         onclick="return confirm('Are you sure you want to delete this quiz?');"
