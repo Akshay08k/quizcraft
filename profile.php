@@ -25,12 +25,25 @@ $stmt->execute();
 $avgResult = $stmt->get_result();
 $avgScore = $avgResult->fetch_assoc();
 
-$leaderBoardRank = "select rank() over (order by score desc) as rank, score from quiz_attempts where user_id = ?";
+$leaderBoardRank = "SELECT 
+    COALESCE(RANK() OVER (ORDER BY score DESC), 0) AS rank,
+    COALESCE(score, 0) AS score
+FROM 
+    quiz_attempts
+WHERE 
+    user_id = ?";
 $stmt = $conn->prepare($leaderBoardRank);
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $rankResult = $stmt->get_result();
 $leaderBoardRank = $rankResult->fetch_assoc();
+
+// Kind Of Error Handling When there is no rank for user
+// Rank and score will
+if ($leaderBoardRank === null) {
+    $leaderBoardRank = ['rank' => 0, 'score' => 0];
+}
+
 $userInfo = [
     "username" => $_SESSION['username'],
     "email" => $userData['email'],
@@ -38,6 +51,7 @@ $userInfo = [
     "avgScore" => $avgScore['avg_score'],
     "leaderBoardRank" => $leaderBoardRank['rank']
 ];
+
 ?>
 
 <head>
@@ -227,7 +241,6 @@ $userInfo = [
 
         const categoryCtx = document.getElementById('categoryChart').getContext('2d');
         <?php
-        // Fetch categories
         $sql = "SELECT * FROM categories ORDER BY name";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
@@ -237,7 +250,7 @@ $userInfo = [
         $marksSql = "
     SELECT 
         c.name AS category_name, 
-        COALESCE(SUM(qa.score), 0) AS score
+        max(qa.score) AS score
     FROM categories c
     LEFT JOIN quizzes q ON q.category_id = c.id
     LEFT JOIN quiz_attempts qa ON qa.quiz_id = q.id AND qa.user_id = ?
@@ -250,7 +263,6 @@ $userInfo = [
         $marksResult = $marksStmt->get_result();
         $marks = $marksResult->fetch_all(MYSQLI_ASSOC);
 
-        // Extract scores and labels
         $categoryLabels = array_column($marks, 'category_name');
         $scores = array_column($marks, 'score');
         ?>

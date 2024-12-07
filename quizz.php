@@ -97,7 +97,7 @@
                             echo "<div class='quiz-card p-5'>";
                             echo "<h3 class='text-xl font-semibold mb-3'>" . htmlspecialchars($quiz['name']) . "</h3>";
 
-                            echo "<a href='take_quiz_instructions.php?quiz_id={$quiz["id"]}' class='text-white bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded-lg'>Take Quiz</a>";
+                            echo "<a href='takeQuiz.php?quiz_id={$quiz["id"]}' class='text-white bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded-lg'>Take Quiz</a>";
                             echo "</div></div>";
                         }
                         echo "</div>";

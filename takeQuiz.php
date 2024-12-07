@@ -60,27 +60,45 @@ while ($question = $questions_result->fetch_assoc()) {
 
 <body class="bg-gray-100">
     <div id="initialFullscreenModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-xl text-center max-w-md">
-            <h2 class="text-3xl font-bold text-red-600 mb-4">Quiz Instructions</h2>
-            <p class="text-lg mb-6">To start the quiz, you must:</p>
-            <ul class="list-disc list-inside text-left mb-6">
-                <li>Enable Fullscreen Mode</li>
-                <li>Do not switch tabs or minimize the window</li>
-                <li>Complete the quiz in one sitting</li>
-            </ul>
-            <div class="flex justify-center space-x-4">
-                <button id="startFullscreenBtn" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">
-                    Start Quiz in Fullscreen
-                </button>
+        <div class="space-y-4 mb-6">
+            <div class="bg-white p-10 rounded-lg shadow-lg max-w-2xl w-full">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h2 class="font-semibold text-xl mb-2">Important Rules:
+                        <?php echo $quiz['name']; ?>
+                    </h2>
+                    <ul class="list-disc list-inside">
+                        <li>This quiz consists of multiple-choice questions</li>
+                        <li>You have 1 minute per question</li>
+                        <li>Total quiz time: <span id="total-time"></span></li>
+                        <li>Once you start, you must complete the quiz in one sitting</li>
+                        <li>Leaving the quiz screen will terminate the attempt</li>
+                    </ul>
+                </div>
+
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                    <h2 class="font-semibold text-xl mb-2">Quiz Guidelines:</h2>
+                    <ul class="list-disc list-inside">
+                        <li>Select only one answer per question</li>
+                        <li>You can navigate between questions</li>
+                        <li>Your final score will be calculated automatically</li>
+                    </ul>
+                </div>
+                <div class="text-center pt-10">
+                    <button type="submit" id="startFullscreenBtn"
+                        class="bg-green-500 text-white px-8 py-3 rounded-lg hover:bg-green-600 transition duration-300">
+                        Proceed to Quiz
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
 
+    </div>
     <div id="fullscreenWarningModal"
         class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white p-8 rounded-lg text-center max-w-md">
             <h2 class="text-3xl font-bold text-red-600 mb-4">Quiz Warning!</h2>
-            <p class="text-lg mb-6">You have left the fullscreen mode. This will terminate your quiz if not resumed.</p>
+            <p class="text-lg mb-6">You have left the fullscreen mode. This will terminate your quiz if not resumed.
+            </p>
             <div class="flex justify-center space-x-4">
                 <button id="resumeQuizBtn" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">
                     Resume Quiz
