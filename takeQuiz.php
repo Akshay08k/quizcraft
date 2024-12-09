@@ -1,17 +1,11 @@
 <?php
 session_start();
 include 'db.php';
+include 'authUsers.php';
 
-// Check if user is logged in (uncomment when authentication is implemented)
-// if (!isset($_SESSION['user_id'])) {
-//     header("Location: login.php");
-//     exit();
-// }
-
-// Get quiz ID from URL
+// Geting the quiz ID from URL
 $quiz_id = isset($_GET['quiz_id']) ? intval($_GET['quiz_id']) : 0;
 
-// Fetch quiz details
 $quiz_sql = "SELECT * FROM quizzes WHERE id = ?";
 $quiz_stmt = $conn->prepare($quiz_sql);
 $quiz_stmt->bind_param("i", $quiz_id);
@@ -24,22 +18,26 @@ if ($quiz_result->num_rows == 0) {
 
 $quiz = $quiz_result->fetch_assoc();
 
-// Fetch questions for this quiz
+// Fetching Questions From Quiz
 $questions_sql = "SELECT * FROM questions WHERE quiz_id = ?";
 $questions_stmt = $conn->prepare($questions_sql);
 $questions_stmt->bind_param("i", $quiz_id);
 $questions_stmt->execute();
 $questions_result = $questions_stmt->get_result();
 
-// Store quiz questions in session for validation later
+//Holding values in session as array and variable at end of quiz 
+//redirect user to submit_quiz.php then get all details from session
+//and store into database
+//running query for each question again and again is not a good idea
+//so first complete the quiz and than in single query store all details
 $_SESSION['current_quiz_id'] = $quiz_id;
 $_SESSION['quiz_questions'] = [];
 $_SESSION['quiz_start_time'] = time();
 
-// Prepare questions and options
 $quiz_questions = [];
 while ($question = $questions_result->fetch_assoc()) {
-    // Parse options from the options column
+    //The options are stored in a JSON format
+    //so need to convert it to array
     $options = json_decode($question['options'], true);
     $question['parsed_options'] = $options;
     $quiz_questions[] = $question;
@@ -171,7 +169,8 @@ while ($question = $questions_result->fetch_assoc()) {
     <script>
         let isFullscreen = false;
         let warningTimeout = null;
-        let warningCountdown = 10;
+        let warningCountdown = 20;
+        // DOM Elements
         const initialFullscreenModal = document.getElementById('initialFullscreenModal');
         const startFullscreenBtn = document.getElementById('startFullscreenBtn');
         const fullscreenWarningModal = document.getElementById('fullscreenWarningModal');
@@ -182,13 +181,14 @@ while ($question = $questions_result->fetch_assoc()) {
         const quizContainer = document.getElementById('quiz-container');
         const startQuizBtn = document.getElementById('startQuizBtn');
 
-        // Initial Fullscreen Setup
+        // Going Into Full Screen
         startFullscreenBtn.addEventListener('click', () => {
             initialFullscreenModal.style.display = 'none';
             enterFullscreen();
             startQuizContainer.style.display = 'block';
         });
 
+        //Final Enter
         function enterFullscreen() {
             const element = document.documentElement;
             if (element.requestFullscreen) {
@@ -202,6 +202,8 @@ while ($question = $questions_result->fetch_assoc()) {
             }
             isFullscreen = true;
         }
+
+
 
         function exitFullscreen() {
             if (document.exitFullscreen) {
@@ -217,7 +219,7 @@ while ($question = $questions_result->fetch_assoc()) {
         }
 
         function startWarningCountdown() {
-            warningCountdown = 10;
+            warningCountdown = 20;
             warningCountdownElement.textContent = warningCountdown;
             fullscreenWarningModal.style.display = 'flex';
 
@@ -227,7 +229,8 @@ while ($question = $questions_result->fetch_assoc()) {
 
                 if (warningCountdown <= 0) {
                     clearInterval(warningTimeout);
-                    // Terminate quiz
+                    // Terminate quiz with terminate true 
+                    // and this happened it goes to submit quiz with terminate which insert data from as it is
                     window.location.href = 'submit_quiz.php?terminated=true';
                 }
             }, 1000);
@@ -245,7 +248,9 @@ while ($question = $questions_result->fetch_assoc()) {
             }
         }
 
-        // Resume Quiz Button
+        // Resume Quiz Button click system cant detect the automatic fullscreen
+        //so we to add the button click so system can detect we are in full screen and
+        //resume the quiz again
         resumeQuizBtn.addEventListener('click', () => {
             clearInterval(warningTimeout);
             fullscreenWarningModal.style.display = 'none';

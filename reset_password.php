@@ -42,7 +42,7 @@ if (isset($_GET['token'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QuizCraft | Reset Password</title>
     <link rel="shortcut icon" href="public/images/logo.jpeg" type="image/x-icon" />
-    
+    <link rel="stylesheet" href="public/css/output.css">
 
     <style>
         body {
@@ -50,7 +50,6 @@ if (isset($_GET['token'])) {
         }
     </style>
 
-    <link rel="stylesheet" href="output.css">
 </head>
 
 <body class="bg-gray-900 flex items-center justify-center h-screen">
