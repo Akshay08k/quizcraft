@@ -25,33 +25,15 @@ $stmt->execute();
 $avgResult = $stmt->get_result();
 $avgScore = $avgResult->fetch_assoc();
 
-$leaderBoardRank = "SELECT 
-    COALESCE(RANK() OVER (ORDER BY score DESC), 0) AS rank,
-    COALESCE(score, 0) AS score
-FROM 
-    quiz_attempts
-WHERE 
-    user_id = ?";
-$stmt = $conn->prepare($leaderBoardRank);
-$stmt->bind_param("i", $_SESSION['user_id']);
-$stmt->execute();
-$rankResult = $stmt->get_result();
-$leaderBoardRank = $rankResult->fetch_assoc();
 
-// Kind Of Error Handling When there is no rank for user
-// Rank and score will
-if ($leaderBoardRank === null) {
-    $leaderBoardRank = ['rank' => 0, 'score' => 0];
-}
 
 $userInfo = [
     "username" => $_SESSION['username'],
     "email" => $userData['email'],
     "totalQuiz" => $totalQuizCount['total_quiz'],
     "avgScore" => $avgScore['avg_score'],
-    "leaderBoardRank" => $leaderBoardRank['rank']
+    "leaderBoardRank" => $_SESSION['UserRank']
 ];
-
 ?>
 
 <head>
@@ -74,13 +56,15 @@ $userInfo = [
                     <li><a href="quizz.php" class="text-gray-700 hover:text-blue-600">Quizzes</a></li>
                     <li><a href="leaderboard.php" class="text-gray-700 hover:text-blue-600">Leaderboard</a></li>
                     <li><a href="profile.php" class="text-gray-700 hover:text-blue-600">Profile</a></li>
+                    <li><a href="logout.php" class="text-gray-700 hover:text-blue-600">logout</a></li>
+
                 </ul>
             </div>
         </div>
     </nav>
 
     <section class="relative h-64 flex items-center justify-center text-white gradient-bg mb-8 mt-16">
-        <div class="absolute inset-0 bg-gradient-to-r from-blue-800 via-blue-600 to-transparent opacity-75"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-gray-800 via-gray-700 to-black opacity-80"></div>
         <div class="relative z-10 max-w-7xl w-full mx-auto px-4 flex items-center space-x-8 fade-in">
             <div
                 class="w-32 h-32 bg-white rounded-full flex items-center justify-center border-4 border-white shadow-xl">
@@ -271,9 +255,9 @@ $userInfo = [
             data: {
                 labels: <?php echo json_encode($categoryLabels); ?>,
                 datasets: [{
-                    label: 'Mastery Level',
+                    label: 'Total Score By Categories',
                     data: <?php echo json_encode($scores); ?>,
-                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                    backgroundColor: 'rgba(37, 99, 235, 0.8)',
                     borderColor: '#2563eb',
                     pointBackgroundColor: '#2563eb',
                     pointBorderColor: '#fff',
@@ -288,7 +272,7 @@ $userInfo = [
                         beginAtZero: true,
                         max: 20,
                         ticks: {
-                            stepSize: 5
+                            stepSize: 10
                         }
                     }
                 }

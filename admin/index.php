@@ -1,7 +1,5 @@
 <?php
 session_start();
-// Add authentication check
-
 if ($_SESSION['admin_logged_in'] !== true) {
     header('Location: login.php');
     exit();
@@ -20,7 +18,9 @@ $totalPlays = mysqli_query($conn, "SELECT COUNT(*) as count FROM quiz_attempts")
 <head>
     <meta charset="UTF-8">
     <title>QuizCraft - Admin Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <link rel="shortcut icon" href="../public/images/logo.jpeg" type="image/x-icon" />
+    <link rel="stylesheet" href="../public/css/output.css">
 </head>
 
 <body class="bg-gray-100">

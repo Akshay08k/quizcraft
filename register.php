@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("sss", $username, $email, $hashedPassword);
 
         if ($stmt->execute()) {
-          $success_message = "Registration successful! You can now log in.";
+          $success_message = "Registration successful! You can now log in" . " <a href='index.php' class='text-blue-500 hover:underline'>here</a>";
         } else {
           $error_message = "Error: " . $stmt->error;
         }
@@ -54,7 +54,7 @@ $conn->close();
   <link rel="shortcut icon" href="public/images/logo.jpeg" type="image/x-icon" />
   <style>
     body {
-      background-image: url(https://img.freepik.com/premium-vector/different-football-silhouettes-seamless-pattern-vector-background_153454-5070.jpg);
+      background-image: url('public/images/background.jpeg');
     }
   </style>
   <link rel="stylesheet" href="public/css/output.css">

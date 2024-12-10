@@ -1,9 +1,7 @@
 <?php
 session_start();
 include 'db.php';
-include 'authUsers.php';
 
-// Geting the quiz ID from URL
 $quiz_id = isset($_GET['quiz_id']) ? intval($_GET['quiz_id']) : 0;
 
 $quiz_sql = "SELECT * FROM quizzes WHERE id = ?";
@@ -231,7 +229,7 @@ while ($question = $questions_result->fetch_assoc()) {
                     clearInterval(warningTimeout);
                     // Terminate quiz with terminate true 
                     // and this happened it goes to submit quiz with terminate which insert data from as it is
-                    window.location.href = 'submit_quiz.php?terminated=true';
+                    window.location.href = 'profile.php';
                 }
             }, 1000);
         }

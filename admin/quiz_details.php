@@ -65,7 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $options = mysqli_real_escape_string($conn, $options); // Escape the JSON string
 
                 if ($question_id > 0) {
-                    // Update existing question
                     $update_query = "
                         UPDATE questions 
                         SET 
@@ -106,7 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>QuizCraft - Edit Quiz</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <link rel="shortcut icon" href="../public/images/logo.jpeg" type="image/x-icon" />
+    <link rel="stylesheet" href="../public/css/output.css">
 </head>
 
 <body class="bg-gray-100">
@@ -141,17 +142,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <div class="mb-3">
                                 <label class="block text-gray-700 text-sm font-bold mb-2">Options</label>
                                 <?php
-                                // Decode JSON options from the database to array
-                                $options = json_decode($question['options'], true); // Decode options into an array
-                                $current_options = ['A', 'B', 'C', 'D']; // Option labels
+                                $options = json_decode($question['options'], true);
+                                $current_options = ['A', 'B', 'C', 'D'];
                                 ?>
                                 <div class="grid grid-cols-2 gap-2">
                                     <?php foreach ($current_options as $opt_index => $opt): ?>
                                         <!-- Render each option in an input field -->
                                         <input type="text" name="questions[<?php echo $index; ?>][options][]"
-                                            value="<?php echo htmlspecialchars($options[$opt_index] ?? ''); ?>" 
-                                        placeholder="Option <?php echo $opt; ?>"
-                                        class="shadow appearance-none border rounded py-2 px-3 text-gray-700" required>
+                                            value="<?php echo htmlspecialchars($options[$opt_index] ?? ''); ?>"
+                                            placeholder="Option <?php echo $opt; ?>"
+                                            class="shadow appearance-none border rounded py-2 px-3 text-gray-700" required>
                                     <?php endforeach; ?>
                                 </div>
                             </div>
@@ -228,7 +228,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </select>
             </div>
         `;
-
             container.appendChild(newQuestionBlock);
             questionIndex++;
         });

@@ -22,7 +22,8 @@ if (!$users_result) {
 <head>
     <meta charset="UTF-8">
     <title>QuizCraft - User Management</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="../public/images/logo.jpeg" type="image/x-icon" />
+    <link rel="stylesheet" href="../public/css/output.css">
 </head>
 
 <body class="bg-gray-100">

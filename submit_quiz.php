@@ -1,7 +1,6 @@
 <?php
 session_start();
 include 'db.php';
-include 'authUsers.php';
 
 $user_id = $_SESSION['user_id'];
 $quiz_id = $_SESSION['current_quiz_id'];
@@ -9,10 +8,10 @@ $quiz_questions = $_SESSION['quiz_questions'];
 
 // Mapping to convert numeric inputs to letter options
 $answer_mapping = array(
-    '1' => 'A',
-    '2' => 'B',
-    '3' => 'C',
-    '4' => 'D'
+    '0' => 'A',
+    '1' => 'B',
+    '2' => 'C',
+    '3' => 'D'
 );
 
 // Initialize variables

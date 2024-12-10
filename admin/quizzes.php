@@ -33,7 +33,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 
         mysqli_query($conn, "DELETE FROM quiz_attempts WHERE quiz_id = $quiz_id");
 
-        mysqli_query($conn, "DELETE FROM  WHERE id = $quiz_id");
+        mysqli_query($conn, "DELETE FROM quizzes WHERE id = $quiz_id");
 
         mysqli_commit($conn);
 
@@ -53,7 +53,9 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 <head>
     <meta charset="UTF-8">
     <title>QuizCraft - Manage Quizzes</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <link rel="shortcut icon" href="../public/images/logo.jpeg" type="image/x-icon" />
+    <link rel="stylesheet" href="../public/css/output.css">  
 </head>
 
 <body class="bg-gray-100">
@@ -70,6 +72,10 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         <?php if (isset($_GET['success'])): ?>
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
                 <?php
+                if ($_GET['success'] == 'created') {
+                    echo "Quiz successfully updated.";
+                }
+
                 if ($_GET['success'] == 'deleted')
                     echo "Quiz successfully deleted.";
                 ?>

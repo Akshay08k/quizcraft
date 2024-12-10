@@ -2,19 +2,23 @@
 session_start();
 require_once('../db.php');
 $mysqli = $conn;
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = $mysqli->real_escape_string($_REQUEST['email']);
+    $email = $mysqli->real_escape_string($_POST['email']);
     $password = $_POST['password'];
 
-    $result = $mysqli->query("SELECT * FROM users WHERE email = '$email'");
-    $admin = $result->fetch_assoc();
+    $query = "SELECT * FROM users WHERE email = '$email' AND is_admin = 1";
+    $result = $mysqli->query($query);
 
-    if ($admin && password_verify($password, $admin['password'])) {
-        $_SESSION['admin_logged_in'] = true;
-        $_SESSION['admin_id'] = $admin['id'];
-        header('Location: index.php');
-        exit();
+    if ($result->num_rows == 1) {
+        $admin = $result->fetch_assoc();
+        if (password_verify($password, $admin['password'])) {
+            $_SESSION['admin_logged_in'] = true;
+            $_SESSION['admin_id'] = $admin['id'];
+            header('Location: index.php');
+            exit();
+        } else {
+            $error = "Invalid credentials";
+        }
     } else {
         $error = "Invalid credentials";
     }
@@ -27,7 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>QuizCraft - Admin Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+
+    <link rel="shortcut icon" href="../public/images/logo.jpeg" type="image/x-icon" />
+    <link rel="stylesheet" href="../public/css/output.css">
 </head>
 
 <body class="bg-gray-100 flex items-center justify-center h-screen">

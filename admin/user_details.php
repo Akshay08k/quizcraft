@@ -22,8 +22,6 @@ $user = mysqli_fetch_assoc($user_result);
 if (!$user) {
     die("User not found");
 }
-
-// Fetch user quiz attempts
 $attempts_query = "
     SELECT 
         qa.id, 
@@ -44,7 +42,6 @@ $attempts_query = "
 ";
 $attempts_result = mysqli_query($conn, $attempts_query);
 
-// Calculate user stats
 $total_attempts = mysqli_num_rows($attempts_result);
 $total_score = 0;
 $categories_played = [];
@@ -63,7 +60,8 @@ $average_score = $total_attempts > 0 ? round($total_score / $total_attempts, 2) 
 <head>
     <meta charset="UTF-8">
     <title>QuizCraft - User Details</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="../public/images/logo.jpeg" type="image/x-icon" />
+    <link rel="stylesheet" href="../public/css/output.css">
 </head>
 
 <body class="bg-gray-100">

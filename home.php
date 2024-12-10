@@ -21,14 +21,16 @@
           <li><a href="quizz.php" class="text-gray-700 hover:text-blue-600">Quizzes</a></li>
           <li><a href="leaderboard.php" class="text-gray-700 hover:text-blue-600">Leaderboard</a></li>
           <li><a href="profile.php" class="text-gray-700 hover:text-blue-600">Profile</a></li>
+          <li><a href="logout.php" class="text-gray-700 hover:text-blue-600">logout</a></li>
+
         </ul>
       </div>
     </div>
   </nav>
 
   <section class="relative h-screen flex items-center justify-center text-center text-white"
-    style="background-image: url('https://t4.ftcdn.net/jpg/03/03/32/29/360_F_303322991_j4dMRbdkvaTKU8o50FJichVrYEbvjbWJ.jpg'); background-size: cover; background-position: center;">
-    <div class="absolute inset-0 bg-gradient-to-r from-blue-800 via-blue-600 to-transparent opacity-75"></div>
+    style="background-cover: no-repeat; object-fit: cover; background-image: url('https://deeplor.s3.us-west-2.amazonaws.com/matting_original/2024/12/10/eef25c0fd7614283b4d0bd52349f69b5.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20241210T121954Z&X-Amz-SignedHeaders=host&X-Amz-Expires=10800&X-Amz-Credential=AKIAROYXHKZUSZONTWIG%2F20241210%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Signature=4122ac704ca0c8fd6a5d20c21db1958d73986f80e2f8630ad719032577499d10'); background-size: cover; background-position: center;">
+    <div class="absolute inset-0  opacity-75"></div>
     <div class="relative z-10 px-4 fade-in">
       <h1 class="text-6xl font-bold mb-4">Welcome to QuizCraft</h1>
       <p class="text-xl mb-6">Test your knowledge and compete with others in various categories!</p>
