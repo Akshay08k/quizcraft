@@ -21,26 +21,26 @@ $query = "
     ORDER BY 
         q.id DESC
 ";
-$result = mysqli_query($conn, $query);
+$result = $conn->query($query);
 
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $quiz_id = intval($_GET['delete']);
-
-    mysqli_begin_transaction($conn);
-
+    $conn->beginTransaction();
     try {
-        mysqli_query($conn, "DELETE FROM questions WHERE quiz_id = $quiz_id");
+        $stmt = $conn->prepare("DELETE FROM questions WHERE quiz_id = :id");
+        $stmt->execute([':id' => $quiz_id]);
 
-        mysqli_query($conn, "DELETE FROM quiz_attempts WHERE quiz_id = $quiz_id");
+        $stmt = $conn->prepare("DELETE FROM quiz_attempts WHERE quiz_id = :id");
+        $stmt->execute([':id' => $quiz_id]);
 
-        mysqli_query($conn, "DELETE FROM quizzes WHERE id = $quiz_id");
+        $stmt = $conn->prepare("DELETE FROM quizzes WHERE id = :id");
+        $stmt->execute([':id' => $quiz_id]);
 
-        mysqli_commit($conn);
-
+        $conn->commit();
         header('Location: quizzes.php?success=deleted');
         exit();
     } catch (Exception $e) {
-        mysqli_rollback($conn);
+        $conn->rollBack();
         header('Location: quizzes.php?error=deletion_failed');
         exit();
     }
@@ -104,7 +104,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($quiz = mysqli_fetch_assoc($result)): ?>
+                    <?php while ($quiz = $result->fetch(PDO::FETCH_ASSOC)): ?>
                         <tr class="border-b">
                             <td class="p-3"><?php echo $quiz['id']; ?></td>
                             <td class="p-3"><?php echo htmlspecialchars($quiz['name']); ?></td>
@@ -133,7 +133,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
             </table>
         </div>
 
-        <?php if (mysqli_num_rows($result) == 0): ?>
+        <?php if ($result->rowCount() == 0): ?>
             <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative mt-4 text-center">
                 No quizzes found. <a href="create_quiz.php" class="underline">Create your first quiz</a>
             </div>

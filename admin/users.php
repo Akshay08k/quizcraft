@@ -10,9 +10,9 @@ if ($_SESSION['admin_logged_in'] !== true) {
 
 // Fetch all users
 $users_query = "SELECT * FROM users";
-$users_result = mysqli_query($conn, $users_query);
+$users_result = $conn->query($users_query);
 if (!$users_result) {
-    die("Failed to fetch users: " . mysqli_error($conn));
+    die("Failed to fetch users");
 }
 ?>
 
@@ -44,26 +44,19 @@ if (!$users_result) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($user = mysqli_fetch_assoc($users_result)): ?>
+                        <?php while ($user = $users_result->fetch(PDO::FETCH_ASSOC)): ?>
                             <?php
                             // Fetch quiz attempt details for each user
                             $user_id = $user['id'];
-                            $attempts_query = "
-                                SELECT 
-                                    qa.score
-                                FROM 
-                                    quiz_attempts qa
-                                WHERE 
-                                    qa.user_id = $user_id
-                            ";
-                            $attempts_result = mysqli_query($conn, $attempts_query);
-                            $total_attempts = mysqli_num_rows($attempts_result);
+                            $attempts_query = "SELECT qa.score FROM quiz_attempts qa WHERE qa.user_id = :id";
+                            $attempts_stmt = $conn->prepare($attempts_query);
+                            $attempts_stmt->execute([':id' => $user_id]);
+                            $attempts = $attempts_stmt->fetchAll(PDO::FETCH_ASSOC);
+                            $total_attempts = count($attempts);
                             $total_score = 0;
-
-                            while ($attempt = mysqli_fetch_assoc($attempts_result)) {
+                            foreach ($attempts as $attempt) {
                                 $total_score += $attempt['score'];
                             }
-
                             $average_score = $total_attempts > 0 ? round($total_score / $total_attempts, 2) : 0;
                             ?>
                             <tr class="border-b">

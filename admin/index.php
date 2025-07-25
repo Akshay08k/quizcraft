@@ -7,9 +7,9 @@ if ($_SESSION['admin_logged_in'] !== true) {
 
 require_once('../db.php');
 
-$userCount = mysqli_query($conn, "SELECT COUNT(*) as count FROM users")->fetch_assoc()['count'];
-$quizCount = mysqli_query($conn, "SELECT COUNT(*) as count FROM quizzes")->fetch_assoc()['count'];
-$totalPlays = mysqli_query($conn, "SELECT COUNT(*) as count FROM quiz_attempts")->fetch_assoc()['count'];
+$userCount = $conn->query("SELECT COUNT(*) as count FROM users")->fetch(PDO::FETCH_ASSOC)['count'];
+$quizCount = $conn->query("SELECT COUNT(*) as count FROM quizzes")->fetch(PDO::FETCH_ASSOC)['count'];
+$totalPlays = $conn->query("SELECT COUNT(*) as count FROM quiz_attempts")->fetch(PDO::FETCH_ASSOC)['count'];
 ?>
 
 <!DOCTYPE html>

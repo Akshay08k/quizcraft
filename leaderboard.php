@@ -76,14 +76,14 @@ require_once 'db.php';
                                     completed_quizzes DESC
                                 LIMIT 100";
 
-                        $result = mysqli_query($conn, $sql);
+                        $result = $conn->query($sql);
 
-                        if (mysqli_num_rows($result) > 0) {
+                        if ($result && $result->rowCount() > 0) {
                             $rank = 1;
                             $processedUsers = [];
                             $_SESSION['UserRank'] = null; // Initialize as null to ensure clarity.
                         
-                            while ($row = mysqli_fetch_assoc($result)) {
+                            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                                 if ($row['completed_quizzes'] > 0 && !isset($processedUsers[$row['user_id']])) {
                                     echo "<tr class='border-b border-gray-200'>";
                                     echo "<td class='p-4'>" . $rank . "</td>";

@@ -8,19 +8,15 @@ $success = "";
 if (isset($_GET['token'])) {
     $token = $_GET['token'];
     date_default_timezone_set('Asia/Kolkata');
-    $stmt = $conn->prepare("SELECT id FROM users WHERE pass_reset_token = ? AND reset_expires > NOW()");
-    $stmt->bind_param("s", $token);
-    $stmt->execute();
-    $stmt->store_result();
-
-    if ($stmt->num_rows > 0) {
+    $stmt = $conn->prepare("SELECT id FROM users WHERE pass_reset_token = :token AND reset_expires > NOW()");
+    $stmt->execute([':token' => $token]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($user) {
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (!empty($_POST['password'])) {
                 $newPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
-                $stmt = $conn->prepare("UPDATE users SET password = ?, pass_reset_token = NULL, reset_expires = NULL WHERE pass_reset_token = ?");
-                $stmt->bind_param("ss", $newPassword, $token);
-                $stmt->execute();
-
+                $stmt = $conn->prepare("UPDATE users SET password = :password, pass_reset_token = NULL, reset_expires = NULL WHERE pass_reset_token = :token");
+                $stmt->execute([':password' => $newPassword, ':token' => $token]);
                 $success = "Password has been reset. You can now log in.";
             } else {
                 $error = "Password cannot be empty.";

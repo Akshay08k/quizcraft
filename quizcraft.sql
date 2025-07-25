@@ -3,13 +3,10 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 07, 2024 at 07:06 PM
+-- Generation Time: Jul 25, 2025 at 04:58 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -18,72 +15,58 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `quizcraft`
---
+-- Database: quizcraft
+--a
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `categories`
+-- Table structure for table categories
+--
+CREATE TABLE categories (
+  id SERIAL PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  created_at timestamp NOT NULL DEFAULT current_timestamp,
+  updated_at timestamp NOT NULL DEFAULT current_timestamp
+);
+
+--
+-- Dumping data for table categories
 --
 
-CREATE TABLE `categories` (
-  `id` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `categories`
---
-
-INSERT INTO `categories` (`id`, `name`, `created_at`, `updated_at`) VALUES
-(78, 'General Knowledge & Current Affairs', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
-(79, 'Science & Technology', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
-(80, 'Mathematics', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
-(81, 'Arts & Entertainment', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
-(82, 'Literature & Languages', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
-(83, 'Sports & Fitness', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
-(84, 'Business & Economy', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
-(85, 'History & Geography', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
-(86, 'Education & Academics', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
-(87, 'Pop Culture & Media', '2024-11-28 13:57:03', '2024-11-28 13:57:03');
+  INSERT INTO categories (id, name, created_at, updated_at) VALUES
+  (78, 'General Knowledge & Current Affairs', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
+  (79, 'Science & Technology', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
+  (80, 'Mathematics', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
+  (81, 'Arts & Entertainment', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
+  (82, 'Literature & Languages', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
+  (83, 'Sports & Fitness', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
+  (84, 'Business & Economy', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
+  (85, 'History & Geography', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
+  (86, 'Education & Academics', '2024-11-28 13:57:03', '2024-11-28 13:57:03'),
+  (87, 'Pop Culture & Media', '2024-11-28 13:57:03', '2024-11-28 13:57:03');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `comments`
+-- Table structure for table questions
 --
 
-CREATE TABLE `comments` (
-  `id` int(11) NOT NULL,
-  `quiz_id` int(11) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `comment_text` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `questions`
---
-
-CREATE TABLE `questions` (
-  `id` int(11) NOT NULL,
-  `question_text` text NOT NULL,
-  `options` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`options`)),
-  `quiz_id` int(11) NOT NULL,
-  `correct_answer` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE questions (
+  id SERIAL PRIMARY KEY,
+  question_text text NOT NULL,
+  options jsonb NOT NULL,
+  quiz_id integer NOT NULL,
+  correct_answer varchar(255) NOT NULL
+);
 
 --
--- Dumping data for table `questions`
+-- Dumping data for table questions
 --
 
-INSERT INTO `questions` (`id`, `question_text`, `options`, `quiz_id`, `correct_answer`) VALUES
-(221, 'What is The todays date', '[\"gadg\",\"sdfg\",\"sdfg\",\"dfg\"]', 2, 'B'),
-(222, 'what is today name', '[\"dfgq\",\"sdfg\",\"adg\",\"dg\"]', 2, 'A'),
+INSERT INTO questions (id, question_text, options, quiz_id, correct_answer) VALUES
+(221, 'What Is Called Tommorow', '[\"Tommorow\",\"Yesterday\",\"Today\",\"OverMorrow\"]', 2, 'A'),
+(222, 'which Day is holiday in week', '[\"Sunday\",\"Monday\",\"WednesDay\",\"Saturday\"]', 2, 'A'),
 (223, 'Who Is Creater of english', '[\"Victor\",\"Me\",\"You\",\"DOnt Know\"]', 5, 'B'),
 (224, 'What is the capital of France?', '[\"Paris\", \"London\", \"Berlin\", \"Rome\"]', 7, 'A'),
 (225, 'Which city is the capital of Japan?', '[\"Tokyo\", \"Osaka\", \"Kyoto\", \"Nagoya\"]', 7, 'A'),
@@ -159,8 +142,8 @@ INSERT INTO `questions` (`id`, `question_text`, `options`, `quiz_id`, `correct_a
 (295, 'Who is the only actor to win an Oscar for playing a U.S. president?', '[\"Daniel Day-Lewis\", \"Gary Oldman\", \"Anthony Hopkins\", \"Tom Hanks\"]', 10, 'A'),
 (296, 'Who won Best Actor for *The Revenant*?', '[\"Leonardo DiCaprio\", \"Brad Pitt\", \"Matt Damon\", \"Michael Fassbender\"]', 10, 'A'),
 (297, 'What is the nickname of the Oscar statuette?', '[\"Golden Knight\", \"The Gold Man\", \"Oscar\", \"The Academy Figure\"]', 10, 'C'),
-(298, 'Who is the youngest person to win an Oscar?', '[\"Anna Paquin\", \"Tatum O’Neal\", \"Shirley Temple\", \"Haley Joel Osment\"]', 10, 'B'),
-(299, 'Which movie was the first to win all five major Academy Awards?', '[\"Titanic\", \"It Happened One Night\", \"One Flew Over the Cuckoo\'s Nest\", \"The Silence of the Lambs\"]', 10, 'B'),
+(298, 'Who is the youngest person to win an Oscar?', '[\"Anna Paquin\", \"Tatum ONeal\", \"Shirley Temple\", \"Haley Joel Osment\"]', 10, 'B'),
+(299, 'Which movie was the first to win all five major Academy Awards?', '[\"Titanic\", \"It Happened One Night\", \"One Flew Over the Cuckoo\s Nest\", \"The Silence of the Lambs\"]', 10, 'B'),
 (300, 'Who won Best Actress for *La La Land*?', '[\"Emma Stone\", \"Amy Adams\", \"Brie Larson\", \"Margot Robbie\"]', 10, 'A'),
 (301, 'Which actor won a posthumous Oscar for *The Dark Knight*?', '[\"Heath Ledger\", \"Philip Seymour Hoffman\", \"James Dean\", \"Robin Williams\"]', 10, 'A'),
 (302, 'Which film won Best Picture in 2000?', '[\"Gladiator\", \"Traffic\", \"Crouching Tiger, Hidden Dragon\", \"Erin Brockovich\"]', 10, 'A'),
@@ -192,15 +175,15 @@ INSERT INTO `questions` (`id`, `question_text`, `options`, `quiz_id`, `correct_a
 (328, 'Who is the fastest man in the world?', '[\"Michael Johnson\", \"Usain Bolt\", \"Carl Lewis\", \"Tyson Gay\"]', 12, 'B'),
 (329, 'Who holds the record for the most goals in a single World Cup?', '[\"Ronaldo Nazário\", \"Miroslav Klose\", \"Just Fontaine\", \"Pele\"]', 12, 'C'),
 (330, 'Who is the only boxer to hold all four major world titles simultaneously?', '[\"Manny Pacquiao\", \"Floyd Mayweather\", \"Canelo Álvarez\", \"Sugar Ray Leonard\"]', 12, 'C'),
-(331, 'Which footballer won five Ballon d’Or awards in the 2010s?', '[\"Cristiano Ronaldo\", \"Lionel Messi\", \"Neymar\", \"Kaka\"]', 12, 'B'),
+(331, 'Which footballer won five Ballon dOr awards in the 2010s?', '[\"Cristiano Ronaldo\", \"Lionel Messi\", \"Neymar\", \"Kaka\"]', 12, 'B'),
 (332, 'Who is the most successful Formula 1 driver of all time?', '[\"Lewis Hamilton\", \"Michael Schumacher\", \"Ayrton Senna\", \"Sebastian Vettel\"]', 12, 'A'),
 (333, 'Who holds the record for most NBA championships?', '[\"LeBron James\", \"Kobe Bryant\", \"Michael Jordan\", \"Bill Russell\"]', 12, 'D'),
 (334, 'Who is the highest-paid athlete of all time?', '[\"Lionel Messi\", \"Cristiano Ronaldo\", \"Michael Jordan\", \"Floyd Mayweather\"]', 12, 'D'),
 (335, 'Which golfer has the most major championships?', '[\"Tiger Woods\", \"Jack Nicklaus\", \"Arnold Palmer\", \"Gary Player\"]', 12, 'B'),
 (336, 'Who is known as the “Great One” in ice hockey?', '[\"Wayne Gretzky\", \"Mario Lemieux\", \"Bobby Orr\", \"Sidney Crosby\"]', 12, 'A'),
-(337, 'Who won the first women’s tennis Grand Slam?', '[\"Serena Williams\", \"Martina Navratilova\", \"Billie Jean King\", \"Venus Williams\"]', 12, 'C'),
+(337, 'Who won the first womens tennis Grand Slam?', '[\"Serena Williams\", \"Martina Navratilova\", \"Billie Jean King\", \"Venus Williams\"]', 12, 'C'),
 (338, 'Who holds the record for the most home runs in Major League Baseball?', '[\"Barry Bonds\", \"Hank Aaron\", \"Babe Ruth\", \"Alex Rodriguez\"]', 12, 'A'),
-(339, 'Which NBA player is known for his “Sky Hook” shot?', '[\"Shaquille O’Neal\", \"Kareem Abdul-Jabbar\", \"Tim Duncan\", \"Michael Jordan\"]', 12, 'B'),
+(339, 'Which NBA player is known for his “Sky Hook” shot?', '[\"Shaquille ONeal\", \"Kareem Abdul-Jabbar\", \"Tim Duncan\", \"Michael Jordan\"]', 12, 'B'),
 (340, 'Who is the all-time top scorer in international football?', '[\"Lionel Messi\", \"Cristiano Ronaldo\", \"Pele\", \"Ali Daei\"]', 12, 'B'),
 (341, 'Who is the most decorated Olympian of all time?', '[\"Michael Phelps\", \"Larisa Latynina\", \"Paavo Nurmi\", \"Mark Spitz\"]', 12, 'A'),
 (342, 'Which tennis player is nicknamed the “Swiss Maestro”?', '[\"Rafael Nadal\", \"Roger Federer\", \"Novak Djokovic\", \"Andy Murray\"]', 12, 'B'),
@@ -226,7 +209,7 @@ INSERT INTO `questions` (`id`, `question_text`, `options`, `quiz_id`, `correct_a
 (362, 'What does “laissez-faire” mean in economics?', '[\"Government should intervene in the economy\", \"No government intervention in the economy\", \"Government sets prices\", \"Government regulates markets\"]', 13, 'B'),
 (363, 'What does “stagflation” refer to?', '[\"High inflation combined with high unemployment and stagnant demand\", \"High economic growth\", \"High inflation and low unemployment\", \"Low inflation and high demand\"]', 13, 'A'),
 (364, 'Choose the correct sentence.', '[\"She go to school every day.\", \"She goes to school every day.\", \"She going to school every day.\", \"She gone to school every day.\"]', 15, 'B'),
-(365, 'What is the synonym of “happy”?', '[\"Sad\", \"Excited\", \"Joyful\", \"Angry\"]', 15, 'C'),
+(365, 'What is the synonym of “happy”?', '[\"Sad\", \"Excited\", \"Joyful\", \"Angry\"]', 15, 'C');
 (366, 'Which word is an antonym of “difficult”?', '[\"Easy\", \"Hard\", \"Complicated\", \"Challenging\"]', 15, 'A'),
 (367, 'Choose the correct sentence.', '[\"I can plays the piano.\", \"I can play the piano.\", \"I can playing the piano.\", \"I can played the piano.\"]', 15, 'B'),
 (368, 'What is the past tense of “run”?', '[\"Runned\", \"Ran\", \"Running\", \"Runed\"]', 15, 'B'),
@@ -240,7 +223,7 @@ INSERT INTO `questions` (`id`, `question_text`, `options`, `quiz_id`, `correct_a
 (376, 'What is the synonym of “scarcity”?', '[\"Abundance\", \"Plenty\", \"Shortage\", \"Overflow\"]', 15, 'C'),
 (377, 'Which of the following words is an adjective?', '[\"Quick\", \"Run\", \"Happiness\", \"Joyfully\"]', 15, 'A'),
 (378, 'What is the past tense of “go”?', '[\"Went\", \"Gone\", \"Going\", \"Goes\"]', 15, 'A'),
-(379, 'Choose the correct sentence.', '[\"She don’t like pizza.\", \"She doesn’t like pizza.\", \"She don’t likes pizza.\", \"She doesn’t likes pizza.\"]', 15, 'B'),
+(379, 'Choose the correct sentence.', '[\"She dont like pizza.\", \"She doesnt like pizza.\", \"She dont likes pizza.\", \"She doesnt likes pizza.\"]', 15, 'B'),
 (380, 'Which word is an antonym of “strong”?', '[\"Weak\", \"Powerful\", \"Hard\", \"Forceful\"]', 15, 'A'),
 (381, 'What is the plural form of “fox”?', '[\"Foxes\", \"Foxeses\", \"Fox\", \"Foxii\"]', 15, 'A'),
 (382, 'Choose the correct word: He ____ a book every week.', '[\"read\", \"reads\", \"reading\", \"reader\"]', 15, 'B'),
@@ -270,9 +253,9 @@ INSERT INTO `questions` (`id`, `question_text`, `options`, `quiz_id`, `correct_a
 (406, 'What was the name of the popular boy band formed in the late 1990s with members like Justin Timberlake and JC Chasez?', '[\"Backstreet Boys\", \"N*SYNC\", \"98 Degrees\", \"O-Town\"]', 17, 'B'),
 (407, 'Who won the first season of “American Idol” in 2002?', '[\"Kelly Clarkson\", \"Clay Aiken\", \"Justin Guarini\", \"Carrie Underwood\"]', 17, 'A'),
 (408, 'Which actor played Tony Stark in the Marvel Cinematic Universe?', '[\"Chris Hemsworth\", \"Robert Downey Jr.\", \"Chris Evans\", \"Mark Ruffalo\"]', 17, 'B'),
-(409, 'Who was known for the catchphrase “You’re Fired!” on The Apprentice?', '[\"Donald Trump\", \"Simon Cowell\", \"Tyra Banks\", \"Mark Cuban\"]', 17, 'A'),
+(409, 'Who was known for the catchphrase “Youre Fired!” on The Apprentice?', '[\"Donald Trump\", \"Simon Cowell\", \"Tyra Banks\", \"Mark Cuban\"]', 17, 'A'),
 (410, 'What famous 2000s show featured the characters Rachel, Ross, Monica, Chandler, Joey, and Phoebe?', '[\"Friends\", \"How I Met Your Mother\", \"The Office\", \"The Big Bang Theory\"]', 17, 'A'),
-(411, 'Which reality TV star became famous for saying “That’s hot!”?', '[\"Paris Hilton\", \"Kim Kardashian\", \"Nicole Richie\", \"Kourtney Kardashian\"]', 17, 'A'),
+(411, 'Which reality TV star became famous for saying “Thats hot!”?', '[\"Paris Hilton\", \"Kim Kardashian\", \"Nicole Richie\", \"Kourtney Kardashian\"]', 17, 'A'),
 (412, 'Which iconic 2000s song did Britney Spears release in 2003?', '[\"Toxic\", \"Oops!... I Did It Again\", \"Baby One More Time\", \"Im a Slave 4 U\"]', 17, 'A'),
 (413, 'Who was the lead singer of the band The White Stripes?', '[\"Jack White\", \"John Mayer\", \"Dave Grohl\", \"Billy Joe Armstrong\"]', 17, 'A'),
 (414, 'Which actor starred as Edward Cullen in the “Twilight” series?', '[\"Robert Pattinson\", \"Taylor Lautner\", \"Kristen Stewart\", \"Shia LaBeouf\"]', 17, 'A'),
@@ -282,22 +265,22 @@ INSERT INTO `questions` (`id`, `question_text`, `options`, `quiz_id`, `correct_a
 (418, 'Which song by OutKast became a huge hit in the 2000s?', '[\"Hey Ya!\", \"Ms. Jackson\", \"The Way You Move\", \"Roses\"]', 17, 'A'),
 (419, 'What was the name of the social media platform launched in 2004 by Mark Zuckerberg?', '[\"MySpace\", \"Instagram\", \"Facebook\", \"Twitter\"]', 17, 'C'),
 (420, 'Who was the first female artist to win “Artist of the Year” at the MTV Video Music Awards in 2002?', '[\"Beyoncé\", \"Britney Spears\", \"Christina Aguilera\", \"Pink\"]', 17, 'B'),
-(421, 'Which actor famously said, “I’m not a businessman, I’m a business, man!”?', '[\"Jay-Z\", \"Kanye West\", \"Snoop Dogg\", \"Diddy\"]', 17, 'A'),
-(422, 'Which singer’s 2006 album “Back to Black” was a huge success in the 2000s?', '[\"Amy Winehouse\", \"Lily Allen\", \"Duffy\", \"Norah Jones\"]', 17, 'A'),
-(423, 'What is the name of the movie that launched the career of the “Pirates of the Caribbean” franchise?', '[\"Pirates of the Caribbean: The Curse of the Black Pearl\", \"Pirates of the Caribbean: Dead Man’s Chest\", \"Pirates of the Caribbean: At World’s End\", \"Pirates of the Caribbean: On Stranger Tides\"]', 17, 'A'),
+(421, 'Which actor famously said, “Im not a businessman, Im a business, man!”?', '[\"Jay-Z\", \"Kanye West\", \"Snoop Dogg\", \"Diddy\"]', 17, 'A'),
+(422, 'Which singers 2006 album “Back to Black” was a huge success in the 2000s?', '[\"Amy Winehouse\", \"Lily Allen\", \"Duffy\", \"Norah Jones\"]', 17, 'A'),
+(423, 'What is the name of the movie that launched the career of the “Pirates of the Caribbean” franchise?', '[\"Pirates of the Caribbean: The Curse of the Black Pearl\", \"Pirates of the Caribbean: Dead Mans Chest\", \"Pirates of the Caribbean: At Worlds End\", \"Pirates of the Caribbean: On Stranger Tides\"]', 17, 'A'),
 (424, 'Which country recently became the first in the world to legalize the sale of cannabis for recreational use?', '[\"Canada\", \"Netherlands\", \"Uruguay\", \"Portugal\"]', 18, 'A'),
 (425, 'In which year did the UK officially leave the European Union?', '[\"2018\", \"2020\", \"2019\", \"2021\"]', 18, 'B'),
 (426, 'Which country hosted the 2022 FIFA World Cup?', '[\"Russia\", \"Qatar\", \"Brazil\", \"South Korea\"]', 18, 'B'),
 (427, 'Who was the first female vice president of the United States?', '[\"Kamala Harris\", \"Hillary Clinton\", \"Nancy Pelosi\", \"Condoleezza Rice\"]', 18, 'A'),
 (428, 'Which country launched the first successful human mission to Mars?', '[\"China\", \"USA\", \"Russia\", \"India\"]', 18, 'B'),
 (429, 'Which global health organization declared COVID-19 a global pandemic in March 2020?', '[\"UNICEF\", \"World Health Organization\", \"CDC\", \"Red Cross\"]', 18, 'B'),
-(430, 'Which country became the world’s most populous nation in 2023?', '[\"India\", \"China\", \"United States\", \"Indonesia\"]', 18, 'A'),
+(430, 'Which country became the worlds most populous nation in 2023?', '[\"India\", \"China\", \"United States\", \"Indonesia\"]', 18, 'A'),
 (431, 'In which country did the 2022 Russian invasion take place?', '[\"Ukraine\", \"Poland\", \"Belarus\", \"Georgia\"]', 18, 'A'),
 (432, 'Which country has the highest number of COVID-19 vaccinations administered as of 2023?', '[\"China\", \"United States\", \"India\", \"Germany\"]', 18, 'A'),
 (433, 'Which country announced its decision to host the 2024 Summer Olympics?', '[\"Japan\", \"France\", \"USA\", \"Australia\"]', 18, 'B'),
 (434, 'Which country was the first to achieve net-zero carbon emissions by 2050?', '[\"Germany\", \"United Kingdom\", \"New Zealand\", \"Costa Rica\"]', 18, 'B'),
 (435, 'Who was awarded the 2021 Nobel Peace Prize?', '[\"Greta Thunberg\", \"Abiy Ahmed Ali\", \"Maria Ressa\", \"Malala Yousafzai\"]', 18, 'B'),
-(436, 'Which country became the first to achieve the Paris Climate Agreement’s carbon emission reduction targets in 2020?', '[\"United Kingdom\", \"France\", \"Germany\", \"New Zealand\"]', 18, 'A'),
+(436, 'Which country became the first to achieve the Paris Climate Agreements carbon emission reduction targets in 2020?', '[\"United Kingdom\", \"France\", \"Germany\", \"New Zealand\"]', 18, 'A'),
 (437, 'Which continent has the highest number of refugees due to conflict?', '[\"Asia\", \"Europe\", \"Africa\", \"South America\"]', 18, 'C'),
 (438, 'Which global event was canceled for the first time in its history in 2020 due to the pandemic?', '[\"Cannes Film Festival\", \"World Economic Forum\", \"Olympic Games\", \"World Cup\"]', 18, 'C'),
 (439, 'In which year did the United Nations officially declare the climate crisis as an emergency?', '[\"2020\", \"2019\", \"2018\", \"2021\"]', 18, 'A'),
@@ -337,7 +320,7 @@ INSERT INTO `questions` (`id`, `question_text`, `options`, `quiz_id`, `correct_a
 (473, 'Which movement was directly influenced by World War I and sought to challenge cultural norms?', '[\"Dada\", \"Art Nouveau\", \"Neoclassicism\", \"Rococo\"]', 20, 'A'),
 (474, 'Which famous artist is known for creating the sculpture \"David\"?', '[\"Leonardo da Vinci\", \"Michelangelo\", \"Donatello\", \"Raphael\"]', 20, 'B'),
 (475, 'Which style of art was characterized by highly stylized, decorative, and intricate details?', '[\"Rococo\", \"Baroque\", \"Cubism\", \"Expressionism\"]', 20, 'A'),
-(476, 'Which modern artist is known for his abstract drip paintings?', '[\"Jackson Pollock\", \"Marc Chagall\", \"Henri Matisse\", \"Georgia O’Keeffe\"]', 20, 'A'),
+(476, 'Which modern artist is known for his abstract drip paintings?', '[\"Jackson Pollock\", \"Marc Chagall\", \"Henri Matisse\", \"Georgia OKeeffe\"]', 20, 'A'),
 (477, 'Which movement began in the late 19th century and is marked by an emphasis on capturing moments in time?', '[\"Impressionism\", \"Expressionism\", \"Realism\", \"Futurism\"]', 20, 'A'),
 (478, 'What is the main characteristic of Realism in art?', '[\"Idealization of subjects\", \"Depiction of everyday life and the working class\", \"Abstract forms\", \"Use of bright, unnatural colors\"]', 20, 'B'),
 (479, 'Which famous artist painted \"The Persistence of Memory\"?', '[\"Pablo Picasso\", \"Salvador Dalí\", \"Edvard Munch\", \"Henri Rousseau\"]', 20, 'B'),
@@ -345,7 +328,7 @@ INSERT INTO `questions` (`id`, `question_text`, `options`, `quiz_id`, `correct_a
 (481, 'Which art movement emerged in the early 20th century and was heavily influenced by the growth of modern industrial society?', '[\"Futurism\", \"Realism\", \"Surrealism\", \"Cubism\"]', 20, 'A'),
 (482, 'What was the goal of the Arts and Crafts movement?', '[\"To revive traditional craft techniques\", \"To promote industrial mass production\", \"To push for abstract art\", \"To create minimalist designs\"]', 20, 'A'),
 (483, 'Who is known as the leader of the Expressionist movement in painting?', '[\"Edvard Munch\", \"Vincent van Gogh\", \"Wassily Kandinsky\", \"Claude Monet\"]', 20, 'A'),
-(484, 'Which period of art is defined by the use of perspective and realistic human figures, often seen in works like Leonardo da Vinci’s \"The Last Supper\"?', '[\"Renaissance\", \"Baroque\", \"Impressionism\", \"Cubism\"]', 20, 'A'),
+(484, 'Which period of art is defined by the use of perspective and realistic human figures, often seen in works like Leonardo da Vincis \"The Last Supper\"?', '[\"Renaissance\", \"Baroque\", \"Impressionism\", \"Cubism\"]', 20, 'A'),
 (485, 'What is the recommended number of steps to take daily for good health?', '[\"5,000\", \"7,500\", \"10,000\", \"15,000\"]', 21, 'C'),
 (486, 'How long should a person typically warm up before a workout?', '[\"5 minutes\", \"10 minutes\", \"15 minutes\", \"30 minutes\"]', 21, 'B'),
 (487, 'Which exercise is best for building leg strength?', '[\"Squats\", \"Push-ups\", \"Planks\", \"Jumping jacks\"]', 21, 'A'),
@@ -383,10 +366,10 @@ INSERT INTO `questions` (`id`, `question_text`, `options`, `quiz_id`, `correct_a
 (519, 'What does B2B stand for in a business context?', '[\"Business to Buyer\", \"Business to Brand\", \"Business to Business\", \"Brand to Business\"]', 22, 'C'),
 (520, 'What is an example of a strategic alliance?', '[\"Merger between two companies\", \"Licensing a product to another company\", \"Collaborating with a competitor on research\", \"Acquiring a competitor\"]', 22, 'C'),
 (521, 'Which of the following strategies involves offering differentiated products in a market?', '[\"Cost leadership\", \"Differentiation\", \"Focus\", \"Innovation\"]', 22, 'B'),
-(522, 'What does a business’s brand equity refer to?', '[\"The value of a business’s brand reputation\", \"The market share of a business\", \"The profitability of a business\", \"The quality of a business’s products\"]', 22, 'A'),
+(522, 'What does a businesss brand equity refer to?', '[\"The value of a businesss brand reputation\", \"The market share of a business\", \"The profitability of a business\", \"The quality of a businesss products\"]', 22, 'A'),
 (523, 'Which of the following is a feature of a SWOT analysis?', '[\"Market trends\", \"Company weaknesses\", \"Competitor strategies\", \"Employee satisfaction\"]', 22, 'B'),
 (524, 'What is the first step in the strategic management process?', '[\"Formulating a plan\", \"Evaluating the external environment\", \"Setting objectives\", \"Implementing strategy\"]', 22, 'C'),
-(525, 'What is the role of a business consultant?', '[\"To manage a business’s daily operations\", \"To provide external advice and solutions\", \"To handle customer relations\", \"To design products\"]', 22, 'B'),
+(525, 'What is the role of a business consultant?', '[\"To manage a businesss daily operations\", \"To provide external advice and solutions\", \"To handle customer relations\", \"To design products\"]', 22, 'B'),
 (526, 'When did the American Civil War begin?', '[\"1776\", \"1861\", \"1914\", \"1945\"]', 23, 'B'),
 (527, 'In which year did World War I start?', '[\"1912\", \"1914\", \"1916\", \"1918\"]', 23, 'B'),
 (528, 'When was the Declaration of Independence signed?', '[\"1776\", \"1787\", \"1791\", \"1800\"]', 23, 'A'),
@@ -410,7 +393,7 @@ INSERT INTO `questions` (`id`, `question_text`, `options`, `quiz_id`, `correct_a
 (546, 'What is the purpose of a thesis statement in academic writing?', '[\"To summarize the conclusion\", \"To introduce the topic\", \"To present the main argument\", \"To cite sources\"]', 24, 'C'),
 (547, 'What is a topic sentence?', '[\"A sentence that concludes the paragraph\", \"A sentence that introduces the main idea of a paragraph\", \"A sentence that summarizes the article\", \"A sentence that defines the thesis\"]', 24, 'B'),
 (548, 'Which of the following is an example of formal academic language?', '[\"Hey, guys!\", \"The data suggests that...\", \"We need more fun!\", \"I think the result is okay.\"]', 24, 'B'),
-(549, 'What does \"plagiarism\" mean?', '[\"Quoting a source\", \"Citing a source\", \"Copying someone else’s work without credit\", \"Paraphrasing\"]', 24, 'C'),
+(549, 'What does \"plagiarism\" mean?', '[\"Quoting a source\", \"Citing a source\", \"Copying someone elses work without credit\", \"Paraphrasing\"]', 24, 'C'),
 (550, 'Which is the correct way to cite a book in APA format?', '[\"Smith, J. (2001). Title of book. Publisher.\", \"Smith, J. Title of book. 2001. Publisher.\", \"Smith, Title of book. 2001. Publisher.\", \"Smith, J. (Title of book. Publisher. 2001)\"]', 24, 'A'),
 (551, 'Which of the following is an appropriate academic writing style?', '[\"Using contractions\", \"Writing in a conversational tone\", \"Using complex sentences and formal vocabulary\", \"Expressing personal opinions\"]', 24, 'C'),
 (552, 'What is the purpose of an abstract in a research paper?', '[\"To provide a summary of the main points of the paper\", \"To discuss the limitations of the study\", \"To present the conclusion in detail\", \"To list the sources used\"]', 24, 'A'),
@@ -419,23 +402,22 @@ INSERT INTO `questions` (`id`, `question_text`, `options`, `quiz_id`, `correct_a
 (555, 'What does it mean to \"synthesize\" information?', '[\"To copy information from sources\", \"To combine information from multiple sources into a cohesive argument\", \"To summarize a source\", \"To analyze information in isolation\"]', 24, 'B'),
 (556, 'In academic writing, what is the role of evidence?', '[\"To support the argument\", \"To summarize the topic\", \"To confuse the reader\", \"To provide personal opinions\"]', 24, 'A'),
 (557, 'What is the purpose of a conclusion in an academic paper?', '[\"To restate the thesis and summarize the key points\", \"To introduce new information\", \"To provide background information\", \"To quote sources\"]', 24, 'A'),
-(558, 'Which sentence is most appropriate for an academic essay introduction?', '[\"So, let’s discuss this important topic.\", \"In this paper, I will explain the causes of global warming.\", \"This topic is something that people often argue about.\", \"I think global warming is bad.\"]', 24, 'B'),
+(558, 'Which sentence is most appropriate for an academic essay introduction?', '[\"So, lets discuss this important topic.\", \"In this paper, I will explain the causes of global warming.\", \"This topic is something that people often argue about.\", \"I think global warming is bad.\"]', 24, 'B'),
 (559, 'What is the difference between a primary and secondary source?', '[\"Primary sources are direct evidence, while secondary sources analyze or interpret primary sources\", \"Primary sources are less reliable than secondary sources\", \"Primary sources are older than secondary sources\", \"Secondary sources are always books, while primary sources are journal articles\"]', 24, 'A'),
 (560, 'Which of the following is an example of a primary source?', '[\"A research article summarizing a study\", \"A newspaper article about an event\", \"A letter written during World War II\", \"A history book about World War II\"]', 24, 'C'),
 (561, 'What is a common mistake in academic writing?', '[\"Overuse of direct quotations\", \"Paraphrasing without citing\", \"Using formal tone\", \"Including an introduction\"]', 24, 'B'),
 (562, 'What should an academic writer do to avoid biased language?', '[\"Use gender-neutral terms\", \"Include personal opinions\", \"Use informal language\", \"Avoid using evidence\"]', 24, 'A'),
-(563, 'How can a writer improve the clarity of their argument?', '[\"By adding more complex vocabulary\", \"By including more quotes\", \"By organizing ideas logically\", \"By using informal language\"]', 24, 'C'),
-(564, 'Which of the following is a good practice when writing a literature review?', '[\"Criticizing the authors of the sources\", \"Summarizing all sources equally\", \"Organizing sources thematically\", \"Only using books as sources\"]', 24, 'C');
-INSERT INTO `questions` (`id`, `question_text`, `options`, `quiz_id`, `correct_answer`) VALUES
+(563, 'How can a writer improve the clarity of their argument?', '[\"By adding more complex vocabulary\", \"By including more quotes\", \"By organizing ideas logically\", \"By using informal language\"]', 24, 'C');
+(564, 'Which of the following is a good practice when writing a literature review?', '[\"Criticizing the authors of the sources\", \"Summarizing all sources equally\", \"Organizing sources thematically\", \"Only using books as sources\"]', 24, 'C'),
 (565, 'Who wrote \"1984\"?', '[\"George Orwell\", \"Aldous Huxley\", \"J.K. Rowling\", \"Ernest Hemingway\"]', 25, 'A'),
-(566, 'Which novel is considered Jane Austen’s most famous work?', '[\"Pride and Prejudice\", \"Emma\", \"Mansfield Park\", \"Sense and Sensibility\"]', 25, 'A'),
+(566, 'Which novel is considered Jane Austens most famous work?', '[\"Pride and Prejudice\", \"Emma\", \"Mansfield Park\", \"Sense and Sensibility\"]', 25, 'A'),
 (567, 'Who is the author of \"The Great Gatsby\"?', '[\"F. Scott Fitzgerald\", \"Ernest Hemingway\", \"John Steinbeck\", \"Mark Twain\"]', 25, 'A'),
 (568, 'Which book begins with the line \"Call me Ishmael\"?', '[\"Moby-Dick\", \"The Catcher in the Rye\", \"To Kill a Mockingbird\", \"Great Expectations\"]', 25, 'A'),
-(569, 'Who wrote \"Harry Potter and the Sorcerer’s Stone\"?', '[\"J.K. Rowling\", \"C.S. Lewis\", \"J.R.R. Tolkien\", \"Philip Pullman\"]', 25, 'A'),
+(569, 'Who wrote \"Harry Potter and the Sorcerers Stone\"?', '[\"J.K. Rowling\", \"C.S. Lewis\", \"J.R.R. Tolkien\", \"Philip Pullman\"]', 25, 'A'),
 (570, 'Which book was written by Charles Dickens?', '[\"Pride and Prejudice\", \"1984\", \"Oliver Twist\", \"Frankenstein\"]', 25, 'C'),
 (571, 'Who wrote \"The Catcher in the Rye\"?', '[\"J.D. Salinger\", \"Harper Lee\", \"Mark Twain\", \"George Orwell\"]', 25, 'A'),
 (572, 'Who wrote \"The Lord of the Rings\"?', '[\"C.S. Lewis\", \"George Orwell\", \"J.R.R. Tolkien\", \"J.K. Rowling\"]', 25, 'C'),
-(573, 'Which novel is set in the fictional country of Gilead?', '[\"The Handmaid’s Tale\", \"The Bell Jar\", \"Brave New World\", \"The Hunger Games\"]', 25, 'A'),
+(573, 'Which novel is set in the fictional country of Gilead?', '[\"The Handmaids Tale\", \"The Bell Jar\", \"Brave New World\", \"The Hunger Games\"]', 25, 'A'),
 (574, 'Who is the author of \"To Kill a Mockingbird\"?', '[\"Harper Lee\", \"J.D. Salinger\", \"Mark Twain\", \"William Faulkner\"]', 25, 'A'),
 (575, 'Which of the following novels was written by George Orwell?', '[\"Brave New World\", \"1984\", \"The Catcher in the Rye\", \"The Grapes of Wrath\"]', 25, 'B'),
 (576, 'Which book was written by William Golding?', '[\"Lord of the Flies\", \"The Outsiders\", \"The Great Gatsby\", \"Of Mice and Men\"]', 25, 'A'),
@@ -491,24 +473,22 @@ INSERT INTO `questions` (`id`, `question_text`, `options`, `quiz_id`, `correct_a
 -- --------------------------------------------------------
 
 --
--- Table structure for table `quizzes`
+-- Table structure for table quizzes
+--
+CREATE TABLE quizzes (
+  id SERIAL PRIMARY KEY,
+  name varchar(200) NOT NULL,
+  category_id integer NOT NULL
+);
+
+--
+-- Dumping data for table quizzes
 --
 
-CREATE TABLE `quizzes` (
-  `id` int(11) NOT NULL,
-  `name` varchar(200) NOT NULL,
-  `category_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `quizzes`
---
-
-INSERT INTO `quizzes` (`id`, `name`, `category_id`) VALUES
+INSERT INTO quizzes (id, name, category_id) VALUES
 (2, 'Today News', 78),
 (3, 'Media Stars', 87),
 (5, 'English Lite', 82),
-(6, 'Indian History', 85),
 (7, 'World Capitals Quiz', 85),
 (8, 'Basic Algebra Problems', 80),
 (9, 'Modern Science Breakthroughs', 79),
@@ -521,7 +501,7 @@ INSERT INTO `quizzes` (`id`, `name`, `category_id`) VALUES
 (16, 'Technology in the 21st Century', 79),
 (17, 'Pop Culture Icons of the 2000s', 87),
 (18, 'Global Current Affairs', 78),
-(19, 'Beginner’s Math Challenge', 80),
+(19, 'Beginners Math Challenge', 80),
 (20, 'Art Movements Through History', 81),
 (21, 'Physical Fitness Fundamentals', 83),
 (22, 'Business Strategies Quiz', 84),
@@ -529,253 +509,163 @@ INSERT INTO `quizzes` (`id`, `name`, `category_id`) VALUES
 (24, 'Academic Writing Skills', 86),
 (25, 'Famous Books and Authors', 82),
 (26, 'Entertainment Industry Facts', 87),
-(27, 'General Knowledge Challenge', 78),
-(28, 'Space Exploration Advances', 79),
-(29, 'Logical Reasoning Problems', 80),
-(30, 'Music History Quiz', 81),
-(31, 'Sports World Championships', 83),
-(32, 'Famous Historical Figures', 85),
-(33, 'Advanced Calculus Problems', 80),
-(34, 'Artificial Intelligence Trends', 79),
-(35, 'Hollywood Blockbusters Trivia', 81),
-(36, 'Shakespearean Plays Quiz', 82),
-(37, 'Olympic Games History', 83),
-(38, 'Principles of Marketing', 84),
-(39, 'Landmarks Around the World', 85),
-(40, 'Education Theories and Practices', 86),
-(41, 'Iconic TV Shows of the 90s', 87);
+(27, 'General Knowledge Challenge', 78);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `quiz_attempts`
+-- Table structure for table quiz_attempts
 --
 
-CREATE TABLE `quiz_attempts` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `quiz_id` int(11) NOT NULL,
-  `score` int(11) NOT NULL,
-  `completed_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE quiz_attempts (
+  id SERIAL PRIMARY KEY,
+  user_id integer NOT NULL,
+  quiz_id integer NOT NULL,
+  score integer NOT NULL,
+  completed_at timestamp NOT NULL DEFAULT current_timestamp
+);
+
 
 --
--- Dumping data for table `quiz_attempts`
+-- Dumping data for table quiz_attempts
 --
 
-INSERT INTO `quiz_attempts` (`id`, `user_id`, `quiz_id`, `score`, `completed_at`) VALUES
-(12, 3, 2, 20, '2024-12-06 10:52:35'),
-(17, 1, 3, 14, '2024-12-06 14:11:30'),
-(21, 20, 8, 0, '2024-12-07 15:13:11'),
-(22, 20, 19, 0, '2024-12-07 16:59:09'),
-(23, 20, 19, 0, '2024-12-07 17:22:34'),
-(24, 20, 10, 0, '2024-12-07 17:24:09'),
-(25, 20, 2, 0, '2024-12-07 17:26:41'),
-(26, 20, 2, 2, '2024-12-07 17:38:12'),
-(27, 20, 2, 0, '2024-12-07 17:41:06'),
-(28, 20, 2, 1, '2024-12-07 17:41:44');
+    INSERT INTO quiz_attempts ( user_id, quiz_id, score, completed_at) VALUES
+    (3, 2, 20, '2024-12-06 10:52:35'),
+    (1, 3, 14, '2024-12-06 14:11:30'),
+    (20, 8, 0, '2024-12-07 15:13:11'),
+    (20, 19, 0, '2024-12-07 16:59:09'),
+    (20, 19, 0, '2024-12-07 17:22:34'),
+    (20, 10, 0, '2024-12-07 17:24:09'),
+    (20, 2, 0, '2024-12-07 17:26:41'),
+    (20, 2, 2, '2024-12-07 17:38:12'),
+    (20, 2, 0, '2024-12-07 17:41:06'),
+    (20, 2, 1, '2024-12-07 17:41:44'),
+    (7, 11, 0, '2024-12-10 04:32:51'),
+    (7, 2, 1, '2024-12-10 05:00:02'),
+    (7, 19, 0, '2024-12-10 06:53:09'),
+    (7, 2, 0, '2024-12-10 12:36:38'),
+    (7, 2, 0, '2024-12-10 12:37:10'),
+    (7, 2, 0, '2024-12-10 12:37:24'),
+    (7, 2, 0, '2024-12-10 12:37:45'),
+    (7, 2, 2, '2024-12-10 12:37:58'),
+    (7, 2, 0, '2024-12-10 13:13:58'),
+    (7, 2, 2, '2024-12-10 13:14:33'),
+    (7, 19, 8, '2024-12-10 14:01:02'),
+    (7, 2, 1, '2024-12-11 04:01:07'),
+    (1, 13, 11, '2024-12-30 12:37:48'),
+    (1, 2, 2, '2025-02-25 17:37:24'),
+    (1, 7, 15, '2025-03-06 10:33:06'),
+    (1, 24, 9, '2025-03-06 10:35:06');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `results`
+-- Table structure for table users
 --
 
-CREATE TABLE `results` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `score` int(11) NOT NULL,
-  `attempt_date` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
-
-CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
-  `username` varchar(50) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `is_admin` tinyint(1) NOT NULL,
-  `pass_reset_token` varchar(255) DEFAULT NULL,
-  `reset_expires` datetime DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  username varchar(50) NOT NULL,
+  password varchar(255) NOT NULL,
+  email varchar(100) NOT NULL,
+  is_admin boolean NOT NULL,
+  pass_reset_token varchar(255),
+  reset_expires timestamp,
+  created_at timestamp NOT NULL DEFAULT current_timestamp
+);
 
 --
--- Dumping data for table `users`
+-- Dumping data for table users
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `email`, `is_admin`, `pass_reset_token`, `reset_expires`, `created_at`) VALUES
-(1, 'Akshay', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'akshaykomade012345@gmail.com', 1, NULL, NULL, '2024-11-28 13:00:53'),
-(2, 'yash', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'lonewolfcoc08@gmail.com', 0, NULL, NULL, '2024-11-28 13:00:53'),
-(3, 'Akshay', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'komaleakshay@gmail.com', 0, NULL, NULL, '2024-11-28 13:00:53'),
-(4, 'yash', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'yash@gmail.com', 0, NULL, NULL, '2024-11-28 13:00:53'),
-(5, 'test', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'test@gmail.com', 0, NULL, NULL, '2024-11-28 13:00:53'),
-(7, 'Akshay Komale', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'akshay@gmail.com', 0, NULL, NULL, '2024-12-06 08:04:47'),
-(8, 'john_doe', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'john.doe@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(9, 'jane_smith', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'jane.smith@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(10, 'alex_jones', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'alex.jones@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(11, 'emily_clark', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'emily.clark@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(12, 'michael_brown', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'michael.brown@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(13, 'sarah_davis', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'sarah.davis@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(14, 'david_miller', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'david.miller@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(15, 'laura_wilson', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'laura.wilson@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(16, 'daniel_moore', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'daniel.moore@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(17, 'emma_taylor', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'emma.taylor@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(18, 'william_anderson', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'william.anderson@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(19, 'olivia_thomas', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'olivia.thomas@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(20, 'James', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'james.jackson@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(21, 'sophia_white', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'sophia.white@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(22, 'benjamin_harris', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'benjamin.harris@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(23, 'chloe_martin', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'chloe.martin@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(24, 'henry_lee', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'henry.lee@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(25, 'mia_perez', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'mia.perez@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(26, 'jacob_clark', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'jacob.clark@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(27, 'ella_lopez', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'ella.lopez@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(28, 'ethan_roberts', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'ethan.roberts@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(29, 'amelia_gonzalez', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'amelia.gonzalez@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(30, 'noah_hall', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'noah.hall@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(31, 'isabella_lewis', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'isabella.lewis@example.com', 0, NULL, NULL, '2024-12-07 14:19:17'),
-(32, 'logan_hill', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'logan.hill@example.com', 0, NULL, NULL, '2024-12-07 14:19:17');
+INSERT INTO users (id, username, password, email, is_admin, pass_reset_token, reset_expires, created_at) VALUES
+(1, 'Akshay', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'akshaykomade012345@gmail.com', true, '6562b706be8c830c120580b902e6e150fa3b263feb5364a71428e7631a0de0c1f6b16b2af9f1bac626a2c4b76313b7e8a511', '2024-12-09 15:29:17', '2024-11-28 13:00:53'),
+(2, 'yash', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'lonewolfcoc08@gmail.com', false, NULL, NULL, '2024-11-28 13:00:53'),
+(3, 'Akshay', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'komaleakshay@gmail.com', false, NULL, NULL, '2024-11-28 13:00:53'),
+(4, 'yash', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'yash@gmail.com', false, NULL, NULL, '2024-11-28 13:00:53'),
+(5, 'test', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'test@gmail.com', false, NULL, NULL, '2024-11-28 13:00:53'),
+(7, 'Nothing', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'akshay@gmail.com', false, 'abec47423d60d619333b7f73bdfc8de9f1dd6b2a56f6ff20685870570848566b0d0d9403ffc31dbc44d852255f4ae8605f20', '2024-12-09 15:29:06', '2024-12-06 08:04:47'),
+(8, 'john_doe', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'john.doe@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(9, 'jane_smith', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'jane.smith@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(10, 'alex_jones', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'alex.jones@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(11, 'emily_clark', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'emily.clark@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(12, 'michael_brown', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'michael.brown@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(13, 'sarah_davis', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'sarah.davis@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(14, 'david_miller', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'david.miller@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(15, 'laura_wilson', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'laura.wilson@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(16, 'daniel_moore', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'daniel.moore@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(17, 'emma_taylor', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'emma.taylor@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(18, 'william_anderson', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'william.anderson@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(19, 'olivia_thomas', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'olivia.thomas@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(20, 'James', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'james.jackson@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(21, 'sophia_white', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'sophia.white@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(22, 'benjamin_harris', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'benjamin.harris@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(23, 'chloe_martin', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'chloe.martin@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(24, 'henry_lee', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'henry.lee@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(25, 'mia_perez', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'mia.perez@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(26, 'jacob_clark', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'jacob.clark@example.com', false, NULL, NULL, '2024-12-07 14:19:17'),
+(27, 'ella_lopez', '$2y$10$tIJZ62aiM/a0I8hEEv4gH.btLcyy1.KCckXQY/DDMqjg4qpdLkv0O', 'ella.lopez@example.com', false, NULL, NULL, '2024-12-07 14:19:17');
 
 --
 -- Indexes for dumped tables
---
+---- Add primary keys
+ALTER TABLE categories
+  ADD PRIMARY KEY (id);
 
---
--- Indexes for table `categories`
---
-ALTER TABLE `categories`
-  ADD PRIMARY KEY (`id`);
+ALTER TABLE questions
+  ADD PRIMARY KEY (id);
 
---
--- Indexes for table `comments`
---
-ALTER TABLE `comments`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
+ALTER TABLE quizzes
+  ADD PRIMARY KEY (id);
 
---
--- Indexes for table `questions`
---
-ALTER TABLE `questions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_que_1` (`quiz_id`);
+ALTER TABLE quiz_attempts
+  ADD PRIMARY KEY (id);
 
---
--- Indexes for table `quizzes`
---
-ALTER TABLE `quizzes`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_quiz_1` (`category_id`);
+ALTER TABLE users
+  ADD PRIMARY KEY (id);
 
---
--- Indexes for table `quiz_attempts`
---
-ALTER TABLE `quiz_attempts`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_quizat_1` (`quiz_id`),
-  ADD KEY `fk_quizat_2` (`user_id`);
 
---
--- Indexes for table `results`
---
-ALTER TABLE `results`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
+-- Change column types to serial-like auto increment
+-- Note: In PostgreSQL, best practice is to use 'SERIAL' or 'GENERATED ALWAYS AS IDENTITY'
+-- Since we are modifying existing tables, we should use sequences.
 
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`);
+-- For categories.id
+CREATE SEQUENCE categories_id_seq START WITH 88 OWNED BY categories.id;
+ALTER TABLE categories ALTER COLUMN id SET DEFAULT nextval('categories_id_seq');
 
---
--- AUTO_INCREMENT for dumped tables
---
+-- For questions.id
+CREATE SEQUENCE questions_id_seq START WITH 625 OWNED BY questions.id;
+ALTER TABLE questions ALTER COLUMN id SET DEFAULT nextval('questions_id_seq');
 
---
--- AUTO_INCREMENT for table `categories`
---
-ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
+-- For quizzes.id
+CREATE SEQUENCE quizzes_id_seq START WITH 42 OWNED BY quizzes.id;
+ALTER TABLE quizzes ALTER COLUMN id SET DEFAULT nextval('quizzes_id_seq');
 
---
--- AUTO_INCREMENT for table `comments`
---
-ALTER TABLE `comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+-- For quiz_attempts.id
+CREATE SEQUENCE quiz_attempts_id_seq START WITH 45 OWNED BY quiz_attempts.id;
+ALTER TABLE quiz_attempts ALTER COLUMN id SET DEFAULT nextval('quiz_attempts_id_seq');
 
---
--- AUTO_INCREMENT for table `questions`
---
-ALTER TABLE `questions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=625;
+-- For users.id
+CREATE SEQUENCE users_id_seq START WITH 36 OWNED BY users.id;
+ALTER TABLE users ALTER COLUMN id SET DEFAULT nextval('users_id_seq');
 
---
--- AUTO_INCREMENT for table `quizzes`
---
-ALTER TABLE `quizzes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
---
--- AUTO_INCREMENT for table `quiz_attempts`
---
-ALTER TABLE `quiz_attempts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+-- Add indexes
+CREATE INDEX fk_que_1 ON questions (quiz_id);
+CREATE INDEX fk_quiz_1 ON quizzes (category_id);
+CREATE INDEX fk_quizat_1 ON quiz_attempts (quiz_id);
+CREATE INDEX fk_quizat_2 ON quiz_attempts (user_id);
 
---
--- AUTO_INCREMENT for table `results`
---
-ALTER TABLE `results`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+-- Add foreign keys
+ALTER TABLE questions
+  ADD CONSTRAINT fk_que_1 FOREIGN KEY (quiz_id) REFERENCES quizzes (id);
 
---
--- Constraints for dumped tables
---
+ALTER TABLE quizzes
+  ADD CONSTRAINT fk_quiz_1 FOREIGN KEY (category_id) REFERENCES categories (id);
 
---
--- Constraints for table `comments`
---
-ALTER TABLE `comments`
-  ADD CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE quiz_attempts
+  ADD CONSTRAINT fk_quizat_2 FOREIGN KEY (user_id) REFERENCES users (id),
+  ADD CONSTRAINT fk_quizat_1 FOREIGN KEY (quiz_id) REFERENCES quizzes (id);
 
---
--- Constraints for table `questions`
---
-ALTER TABLE `questions`
-  ADD CONSTRAINT `fk_que_1` FOREIGN KEY (`quiz_id`) REFERENCES `quizzes` (`id`);
-
---
--- Constraints for table `quizzes`
---
-ALTER TABLE `quizzes`
-  ADD CONSTRAINT `fk_quiz_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`);
-
---
--- Constraints for table `quiz_attempts`
---
-ALTER TABLE `quiz_attempts`
-  ADD CONSTRAINT `fk_quizat_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `quiz_attempts` FOREIGN KEY (`quiz_id`) REFERENCES `quizzes` (`id`);
-
---
--- Constraints for table `results`
---
-ALTER TABLE `results`
-  ADD CONSTRAINT `results_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

@@ -15,9 +15,10 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $user_id = intval($_GET['id']);
 
 // Fetch user details
-$user_query = "SELECT * FROM users WHERE id = $user_id";
-$user_result = mysqli_query($conn, $user_query);
-$user = mysqli_fetch_assoc($user_result);
+$user_query = "SELECT * FROM users WHERE id = :id";
+$user_stmt = $conn->prepare($user_query);
+$user_stmt->execute([':id' => $user_id]);
+$user = $user_stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$user) {
     die("User not found");
@@ -36,21 +37,20 @@ $attempts_query = "
     JOIN 
         categories qc ON q.category_id = qc.id
     WHERE 
-        qa.user_id = $user_id
+        qa.user_id = :id
     ORDER BY 
         qa.completed_at DESC
 ";
-$attempts_result = mysqli_query($conn, $attempts_query);
-
-$total_attempts = mysqli_num_rows($attempts_result);
+$attempts_stmt = $conn->prepare($attempts_query);
+$attempts_stmt->execute([':id' => $user_id]);
+$attempts = $attempts_stmt->fetchAll(PDO::FETCH_ASSOC);
+$total_attempts = count($attempts);
 $total_score = 0;
 $categories_played = [];
-
-while ($attempt = mysqli_fetch_assoc($attempts_result)) {
+foreach ($attempts as $attempt) {
     $total_score += $attempt['score'];
     $categories_played[$attempt['category']] = true;
 }
-
 $average_score = $total_attempts > 0 ? round($total_score / $total_attempts, 2) : 0;
 ?>
 
@@ -109,8 +109,7 @@ $average_score = $total_attempts > 0 ? round($total_score / $total_attempts, 2) 
                     </thead>
                     <tbody>
                         <?php
-                        mysqli_data_seek($attempts_result, 0);
-                        while ($attempt = mysqli_fetch_assoc($attempts_result)):
+                        foreach ($attempts as $attempt):
                             ?>
                             <tr class="border-b">
                                 <td class="p-3"><?php echo htmlspecialchars($attempt['quiz_title']); ?></td>
@@ -118,7 +117,7 @@ $average_score = $total_attempts > 0 ? round($total_score / $total_attempts, 2) 
                                 <td class="p-3"><?php echo $attempt['score']; ?>%</td>
                                 <td class="p-3"><?php echo date('d M Y H:i', strtotime($attempt['completed_at'])); ?></td>
                             </tr>
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>

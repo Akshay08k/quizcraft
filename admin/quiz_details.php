@@ -10,88 +10,68 @@ require_once('../db.php');
 $quiz_id = intval($_GET['id']);
 
 // Fetch quiz details
-$quiz_query = "
-    SELECT 
-        q.id, 
-        q.name, 
-        q.category_id
-    FROM 
-        quizzes q
-    WHERE 
-        q.id = $quiz_id
-";
-$quiz_result = mysqli_query($conn, $quiz_query);
-$quiz = mysqli_fetch_assoc($quiz_result);
+$quiz_query = "SELECT q.id, q.name, q.category_id FROM quizzes q WHERE q.id = :id";
+$quiz_stmt = $conn->prepare($quiz_query);
+$quiz_stmt->execute([':id' => $quiz_id]);
+$quiz = $quiz_stmt->fetch(PDO::FETCH_ASSOC);
 
 // Fetch existing questions
-$questions_query = "
-    SELECT 
-        id, 
-        question_text, 
-        options,
-        correct_answer
-    FROM 
-        questions
-    WHERE 
-        quiz_id = $quiz_id
-";
-$questions_result = mysqli_query($conn, $questions_query);
-$questions = mysqli_fetch_all($questions_result, MYSQLI_ASSOC);
+$questions_query = "SELECT id, question_text, options, correct_answer FROM questions WHERE quiz_id = :id";
+$questions_stmt = $conn->prepare($questions_query);
+$questions_stmt->execute([':id' => $quiz_id]);
+$questions = $questions_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    mysqli_begin_transaction($conn);
+    $conn->beginTransaction();
 
     try {
         // Update quiz basic details
-        $quiz_title = mysqli_real_escape_string($conn, $_POST['title']);
-        $update_quiz_query = "
-            UPDATE quizzes 
-            SET name = '$quiz_title' 
-            WHERE id = $quiz_id
-        ";
-        mysqli_query($conn, $update_quiz_query);
+        $quiz_title = $_POST['title'];
+        $update_quiz_query = "UPDATE quizzes SET name = :title WHERE id = :id";
+        $update_stmt = $conn->prepare($update_quiz_query);
+        $update_stmt->execute([':title' => $quiz_title, ':id' => $quiz_id]);
 
         // Process questions
         if (isset($_POST['questions'])) {
             foreach ($_POST['questions'] as $question_data) {
                 // Determine if existing or new question
                 $question_id = isset($question_data['id']) ? intval($question_data['id']) : 0;
-                $question_text = mysqli_real_escape_string($conn, $question_data['text']);
-                $correct_answer = mysqli_real_escape_string($conn, $question_data['correct_answer']);
+                $question_text = $question_data['text'];
+                $correct_answer = $question_data['correct_answer'];
 
                 // Prepare options
                 $options = json_encode($question_data['options']); // Convert array to JSON
-                $options = mysqli_real_escape_string($conn, $options); // Escape the JSON string
+                $options = $conn->quote($options); // Escape the JSON string
 
                 if ($question_id > 0) {
-                    $update_query = "
-                        UPDATE questions 
-                        SET 
-                            question_text = '$question_text', 
-                            options = '$options', 
-                            correct_answer = '$correct_answer'
-                        WHERE id = $question_id
-                    ";
-                    mysqli_query($conn, $update_query);
+                    $update_query = "UPDATE questions SET question_text = :text, options = :options, correct_answer = :correct WHERE id = :qid";
+                    $update_stmt = $conn->prepare($update_query);
+                    $update_stmt->execute([
+                        ':text' => $question_text,
+                        ':options' => $options,
+                        ':correct' => $correct_answer,
+                        ':qid' => $question_id
+                    ]);
                 } else {
                     // Insert new question
-                    $insert_query = "
-                        INSERT INTO questions 
-                        (quiz_id, question_text, options, correct_answer) 
-                        VALUES 
-                        ($quiz_id, '$question_text', '$options', '$correct_answer')
-                    ";
-                    mysqli_query($conn, $insert_query);
+                    $insert_query = "INSERT INTO questions (quiz_id, question_text, options, correct_answer) VALUES (:quiz_id, :text, :options, :correct)";
+                    $insert_stmt = $conn->prepare($insert_query);
+                    $insert_stmt->execute([
+                        ':quiz_id' => $quiz_id,
+                        ':text' => $question_text,
+                        ':options' => $options,
+                        ':correct' => $correct_answer
+                    ]);
                 }
             }
         }
 
-        mysqli_commit($conn);
+        $conn->commit();
         header("Location: quizzes.php?success=updated");
         exit();
     } catch (Exception $e) {
-        mysqli_rollback($conn);
+        $conn->rollBack();
         $error_message = "Failed to update quiz: " . $e->getMessage();
     }
 }

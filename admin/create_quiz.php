@@ -6,23 +6,22 @@ if ($_SESSION['admin_logged_in'] !== true) {
     header('Location: login.php');
     exit();
 }
-$categoriesResult = mysqli_query($conn, "SELECT * FROM categories");
+$categoriesResult = $conn->query("SELECT * FROM categories");
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $category_id = mysqli_real_escape_string($conn, $_POST['category_id']);
-    $title = mysqli_real_escape_string($conn, $_POST['title']);
-
-    $query = "INSERT INTO quizzes (name, category_id) VALUES ('$title', $category_id)";
-    mysqli_query($conn, $query);
-    $quiz_id = mysqli_insert_id($conn);
-
+    $category_id = $_POST['category_id'];
+    $title = $_POST['title'];
+    $query = "INSERT INTO quizzes (name, category_id) VALUES (:title, :category_id)";
+    $stmt = $conn->prepare($query);
+    $stmt->execute([':title' => $title, ':category_id' => $category_id]);
+    $quiz_id = $conn->lastInsertId();
     foreach ($_POST['questions'] as $question) {
-        $question_text = mysqli_real_escape_string($conn, $question['text']);
-        $query = "INSERT INTO quiz_questions (quiz_id, question_text) VALUES ($quiz_id, '$question_text')";
-        mysqli_query($conn, $query);
-        $question_id = mysqli_insert_id($conn);
+        $question_text = $question['text'];
+        $query = "INSERT INTO quiz_questions (quiz_id, question_text) VALUES (:quiz_id, :question_text)";
+        $stmt = $conn->prepare($query);
+        $stmt->execute([':quiz_id' => $quiz_id, ':question_text' => $question_text]);
+        $question_id = $conn->lastInsertId();
     }
-
     header('Location: quizzes.php?success=1');
     exit();
 }
@@ -57,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="mb-4">
                 <label class="block mb-2">Category</label>
                 <select name="category_id" required class="w-full p-2 border rounded">
-                    <?php while ($category = $categoriesResult->fetch_assoc()): ?>
+                    <?php while ($category = $categoriesResult->fetch(PDO::FETCH_ASSOC)): ?>
                         <option value="<?php echo $category['id']; ?>">
                             <?php echo $category['name']; ?>
                         </option>

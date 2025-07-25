@@ -4,34 +4,30 @@
 <?php
 include 'db.php';
 session_start();
-$sql = "SELECT * FROM users WHERE id = ?";
+$sql = "SELECT * FROM users WHERE id = :id";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $_SESSION['user_id']);
-$stmt->execute();
-$result = $stmt->get_result();
-$userData = $result->fetch_assoc();
+$stmt->execute([':id' => $_SESSION['user_id']]);
+$userData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$totalQuiz = "SELECT count(*) as total_quiz FROM quiz_attempts WHERE user_id = ?";
+$totalQuiz = "SELECT count(*) as total_quiz FROM quiz_attempts WHERE user_id = :id";
 $stmt = $conn->prepare($totalQuiz);
-$stmt->bind_param("i", $_SESSION['user_id']);
-$stmt->execute();
-$quizResult = $stmt->get_result();
-$totalQuizCount = $quizResult->fetch_assoc();
+$stmt->execute([':id' => $_SESSION['user_id']]);
+$quizResult = $stmt->fetch(PDO::FETCH_ASSOC);
+$totalQuizCount = $quizResult['total_quiz'];
 
-$avgScore = "SELECT AVG(score) as avg_score FROM quiz_attempts WHERE user_id = ?";
+$avgScore = "SELECT AVG(score) as avg_score FROM quiz_attempts WHERE user_id = :id";
 $stmt = $conn->prepare($avgScore);
-$stmt->bind_param("i", $_SESSION['user_id']);
-$stmt->execute();
-$avgResult = $stmt->get_result();
-$avgScore = $avgResult->fetch_assoc();
+$stmt->execute([':id' => $_SESSION['user_id']]);
+$avgResult = $stmt->fetch(PDO::FETCH_ASSOC);
+$avgScore = $avgResult['avg_score'];
 
 
 
 $userInfo = [
     "username" => $_SESSION['username'],
     "email" => $userData['email'],
-    "totalQuiz" => $totalQuizCount['total_quiz'],
-    "avgScore" => $avgScore['avg_score'],
+    "totalQuiz" => $totalQuizCount,
+    "avgScore" => $avgScore,
     "leaderBoardRank" => $_SESSION['UserRank']
 ];
 ?>
@@ -132,20 +128,16 @@ $userInfo = [
                         </thead>
                         <tbody class="divide-y divide-gray-200">
                             <?php
-                            $sql = "SELECT * FROM quiz_attempts WHERE user_id = ?";
+                            $sql = "SELECT * FROM quiz_attempts WHERE user_id = :id";
                             $stmt = $conn->prepare($sql);
-                            $stmt->bind_param("i", $_SESSION['user_id']);
-                            $stmt->execute();
-                            $result = $stmt->get_result();
-                            $quizHistory = $result->fetch_all(MYSQLI_ASSOC);
+                            $stmt->execute([':id' => $_SESSION['user_id']]);
+                            $quizHistory = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                             foreach ($quizHistory as $quiz):
-                                $quizNameQuery = "SELECT * FROM quizzes WHERE id = ?";
+                                $quizNameQuery = "SELECT * FROM quizzes WHERE id = :id";
                                 $quizNameStmt = $conn->prepare($quizNameQuery);
-                                $quizNameStmt->bind_param("i", $quiz['quiz_id']);
-                                $quizNameStmt->execute();
-                                $quizNameResult = $quizNameStmt->get_result();
-                                $quizName = $quizNameResult->fetch_assoc();
+                                $quizNameStmt->execute([':id' => $quiz['quiz_id']]);
+                                $quizName = $quizNameStmt->fetch(PDO::FETCH_ASSOC);
                                 ?>
                                 <tr class="hover:bg-blue-50 transition duration-150">
                                     <td class="px-6 py-4"><?php echo htmlspecialchars($quizName['name']); ?></td>
@@ -169,8 +161,6 @@ $userInfo = [
                 </div>
             </section>
         </div>
-
-
     </main>
 
     <div id="editProfileModal" class="modal">
@@ -228,8 +218,7 @@ $userInfo = [
         $sql = "SELECT * FROM categories ORDER BY name";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
-        $result = $stmt->get_result();
-        $categories = $result->fetch_all(MYSQLI_ASSOC);
+        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $marksSql = "
     SELECT 
@@ -237,15 +226,13 @@ $userInfo = [
         max(qa.score) AS score
     FROM categories c
     LEFT JOIN quizzes q ON q.category_id = c.id
-    LEFT JOIN quiz_attempts qa ON qa.quiz_id = q.id AND qa.user_id = ?
+    LEFT JOIN quiz_attempts qa ON qa.quiz_id = q.id AND qa.user_id = :id
     GROUP BY c.id, c.name
     ORDER BY c.name
 ";
         $marksStmt = $conn->prepare($marksSql);
-        $marksStmt->bind_param("i", $_SESSION['user_id']);
-        $marksStmt->execute();
-        $marksResult = $marksStmt->get_result();
-        $marks = $marksResult->fetch_all(MYSQLI_ASSOC);
+        $marksStmt->execute([':id' => $_SESSION['user_id']]);
+        $marks = $marksStmt->fetchAll(PDO::FETCH_ASSOC);
 
         $categoryLabels = array_column($marks, 'category_name');
         $scores = array_column($marks, 'score');

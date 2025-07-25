@@ -81,7 +81,7 @@
             <?php
             if (isset($_GET['search'])) {
 
-                $search_query = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
+                $search_query = isset($_GET['search']) ? $_GET['search'] : '';
             }
             $total_quizzes_found = 0;
 
@@ -96,45 +96,58 @@
                 '#EF4444'
             ];
 
-            $category_sql = "SELECT c.id, c.name, COUNT(q.id) as quiz_count 
-                             FROM categories c
-                             LEFT JOIN quizzes q ON c.id = q.category_id
-                             WHERE 1=1 ";
+          $category_sql = "SELECT c.id, c.name, COUNT(q.id) as quiz_count 
+                 FROM categories c
+                 LEFT JOIN quizzes q ON c.id = q.category_id
+                 WHERE 1=1";
 
+if (!empty($search_query)) {
+    $category_sql .= " AND q.name LIKE :search_query";
+}
+
+$category_sql .= " GROUP BY c.id, c.name
+                 HAVING COUNT(q.id) > 0";
+
+
+            $category_stmt = $conn->prepare($category_sql);
             if (!empty($search_query)) {
-                $category_sql .= " AND q.name LIKE '%{$search_query}%'";
+                $category_stmt->bindValue(':search_query', "%{$search_query}%", PDO::PARAM_STR);
             }
+            $category_stmt->execute();
+            $category_result = $category_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            $category_sql .= " GROUP BY c.id, c.name
-                             HAVING quiz_count > 0";
-
-            $category_result = $conn->query($category_sql);
-
-            if ($category_result->num_rows > 0) {
+            if (!empty($category_result)) {
                 $color_index = 0;
-                while ($category = $category_result->fetch_assoc()) {
+                foreach ($category_result as $category) {
                     $category_color = $category_colors[$color_index % count($category_colors)];
 
                     $quiz_sql = "SELECT id, name FROM quizzes 
-                                 WHERE category_id = {$category['id']}";
+                                 WHERE category_id = :category_id";
 
                     if (!empty($search_query)) {
-                        $quiz_sql .= " AND name LIKE '%{$search_query}%'";
+                        $quiz_sql .= " AND name LIKE :search_query";
                     }
 
-                    $quiz_result = $conn->query($quiz_sql);
+                    $quiz_stmt = $conn->prepare($quiz_sql);
+                    $quiz_stmt->bindValue(':category_id', $category['id'], PDO::PARAM_INT);
+                    if (!empty($search_query)) {
+                        $quiz_stmt->bindValue(':search_query', "%{$search_query}%", PDO::PARAM_STR);
+                    }
+                    $quiz_stmt->execute();
+                    $quiz_result = $quiz_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    if ($quiz_result->num_rows > 0) {
-                        $total_quizzes_found += $quiz_result->num_rows;
+                    if (!empty($quiz_result)) {
+                        $total_quizzes_found += count($quiz_result);
 
                         echo "<div class='mb-12'>";
                         echo "<h2 class='text-2xl font-bold text-gray-800 mb-6 flex items-center'>";
                         echo "<span class='w-4 h-4 mr-3 rounded-full' style='background-color: {$category_color}'></span>";
-                        echo "{$category['name']} <span class='text-sm text-gray-500 ml-2'>({$quiz_result->num_rows} Quizzes)</span>";
+                       echo "{$category['name']} <span class='text-sm text-gray-500 ml-2'>(" . count($quiz_result) . " Quizzes)</span>";
+
                         echo "</h2>";
 
                         echo "<div class='quiz-masonry'>";
-                        while ($quiz = $quiz_result->fetch_assoc()) {
+                        foreach ($quiz_result as $quiz) {
                             echo "<div class='quiz-item'>";
                             echo "<div class='quiz-item-header'>";
                             echo "<h3 class='text-lg font-semibold text-gray-800'>" . htmlspecialchars($quiz['name']) . "</h3>";

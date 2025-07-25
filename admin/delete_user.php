@@ -12,10 +12,12 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 }
 $user_id = intval($_GET['id']);
 
-$delete_query = "DELETE FROM users WHERE id = $user_id";
-if (mysqli_query($conn, $delete_query)) {
+$delete_query = "DELETE FROM users WHERE id = :id";
+try {
+    $stmt = $conn->prepare($delete_query);
+    $stmt->execute([':id' => $user_id]);
     header('Location: users.php?message=User Deleted Successfully');
     exit();
-} else {
-    die("Failed to delete user: " . mysqli_error($conn));
+} catch (PDOException $e) {
+    die("Failed to delete user: " . $e->getMessage());
 }

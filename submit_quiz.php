@@ -2,11 +2,21 @@
 session_start();
 include 'db.php';
 
-$user_id = $_SESSION['user_id'];
-$quiz_id = $_SESSION['current_quiz_id'];
-$quiz_questions = $_SESSION['quiz_questions'];
+// Validate: must be POST request
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    die('Invalid access. Please complete the quiz properly.');
+}
 
-// Mapping to convert numeric inputs to letter options
+// Get from session
+$quiz_id = $_SESSION['current_quiz_id'] ?? null;
+$quiz_questions = $_SESSION['quiz_questions'] ?? [];
+$user_id = $_SESSION['user_id'] ?? null;
+
+if (empty($quiz_id) || empty($quiz_questions) || empty($user_id)) {
+    die('Quiz data missing. Please start the quiz again.');
+}
+
+// Mapping numeric to letters
 $answer_mapping = array(
     '0' => 'A',
     '1' => 'B',
@@ -14,48 +24,37 @@ $answer_mapping = array(
     '3' => 'D'
 );
 
-// Initialize variables
 $correct_answers = 0;
 $total_questions = count($quiz_questions);
 
-// Process quiz answers
+// Process each question
 foreach ($quiz_questions as $question_id) {
-    $query = "SELECT question_text, options, correct_answer FROM questions WHERE id = ?";
+    $query = "SELECT correct_answer FROM questions WHERE id = :question_id";
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $question_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $stmt->execute([':question_id' => $question_id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($row = $result->fetch_assoc()) {
-        $question_text = $row['question_text'];
+    if ($row) {
         $correct_db_answer = $row['correct_answer'];
-        $options = json_decode($row['options'], true);
 
-        $user_answer = isset($_POST['question_' . $question_id]) ?
-            $_POST['question_' . $question_id] : null;
+        $user_answer = $_POST['question_' . $question_id] ?? null;
+        $normalized = $answer_mapping[$user_answer] ?? $user_answer;
 
-        $normalized_answer = isset($answer_mapping[$user_answer]) ?
-            $answer_mapping[$user_answer] : $user_answer;
-
-        if ($normalized_answer === $correct_db_answer) {
+        if ($normalized === $correct_db_answer) {
             $correct_answers++;
         }
     }
-    $stmt->close();
 }
 
 $score_percentage = $correct_answers;
 
-$insert_sql = "INSERT INTO quiz_attempts (user_id, quiz_id, score) 
-               VALUES (?, ?, ?)";
+// Save attempt
+$insert_sql = "INSERT INTO quiz_attempts (user_id, quiz_id, score) VALUES (:user_id, :quiz_id, :score)";
 $insert_stmt = $conn->prepare($insert_sql);
-$insert_stmt->bind_param("iii", $user_id, $quiz_id, $score_percentage);
-$insert_stmt->execute();
-$insert_stmt->close();
+$insert_stmt->execute([':user_id' => $user_id, ':quiz_id' => $quiz_id, ':score' => $score_percentage]);
 
-unset($_SESSION['current_quiz_id']);
-unset($_SESSION['quiz_questions']);
-unset($_SESSION['quiz_start_time']);
+// Clean up session
+unset($_SESSION['current_quiz_id'], $_SESSION['quiz_questions'], $_SESSION['quiz_start_time']);
 
 ?>
 
@@ -86,13 +85,12 @@ unset($_SESSION['quiz_start_time']);
             <h2 class="text-2xl font-bold mb-4">Detailed Results</h2>
             <?php
             foreach ($quiz_questions as $question_id) {
-                $query = "SELECT question_text, options, correct_answer FROM questions WHERE id = ?";
+                $query = "SELECT question_text, options, correct_answer FROM questions WHERE id = :question_id";
                 $stmt = $conn->prepare($query);
-                $stmt->bind_param("i", $question_id);
-                $stmt->execute();
-                $result = $stmt->get_result();
+                $stmt->execute([':question_id' => $question_id]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                if ($row = $result->fetch_assoc()) {
+                if ($row) {
                     $question_text = $row['question_text'];
                     $correct_db_answer = $row['correct_answer'];
                     $options = json_decode($row['options'], true);
@@ -110,7 +108,6 @@ unset($_SESSION['quiz_start_time']);
                     echo "<p>Correct Answer: " . htmlspecialchars($correct_db_answer) . "</p>";
                     echo "</div>";
                 }
-                $stmt->close();
             }
             ?>
         </div>

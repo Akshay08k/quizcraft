@@ -2,45 +2,44 @@
 session_start();
 include 'db.php';
 
+$quiz_questions = [];
+$question_ids_array = [];  // initialize empty array
+
 $quiz_id = isset($_GET['quiz_id']) ? intval($_GET['quiz_id']) : 0;
 
-$quiz_sql = "SELECT * FROM quizzes WHERE id = ?";
+$quiz_sql = "SELECT * FROM quizzes WHERE id = :quiz_id";
 $quiz_stmt = $conn->prepare($quiz_sql);
-$quiz_stmt->bind_param("i", $quiz_id);
-$quiz_stmt->execute();
-$quiz_result = $quiz_stmt->get_result();
+$quiz_stmt->execute(['quiz_id' => $quiz_id]);
+$quiz = $quiz_stmt->fetch(PDO::FETCH_ASSOC);
 
-if ($quiz_result->num_rows == 0) {
+if ($quiz === false) {
     die("Quiz not found");
 }
 
-$quiz = $quiz_result->fetch_assoc();
-
 // Fetching Questions From Quiz
-$questions_sql = "SELECT * FROM questions WHERE quiz_id = ?";
+$questions_sql = "SELECT * FROM questions WHERE quiz_id = :quiz_id";
 $questions_stmt = $conn->prepare($questions_sql);
-$questions_stmt->bind_param("i", $quiz_id);
-$questions_stmt->execute();
-$questions_result = $questions_stmt->get_result();
+$questions_stmt->execute(['quiz_id' => $quiz_id]);
+$questions = $questions_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 //Holding values in session as array and variable at end of quiz 
 //redirect user to submit_quiz.php then get all details from session
 //and store into database
 //running query for each question again and again is not a good idea
 //so first complete the quiz and than in single query store all details
-$_SESSION['current_quiz_id'] = $quiz_id;
-$_SESSION['quiz_questions'] = [];
-$_SESSION['quiz_start_time'] = time();
 
 $quiz_questions = [];
-while ($question = $questions_result->fetch_assoc()) {
-    //The options are stored in a JSON format
-    //so need to convert it to array
+
+foreach ($questions as $question) {
+    // Decode options
     $options = json_decode($question['options'], true);
     $question['parsed_options'] = $options;
     $quiz_questions[] = $question;
-    $_SESSION['quiz_questions'][] = $question['id'];
+    $question_ids_array[] = $question['id'];
 }
+$_SESSION['current_quiz_id'] = $quiz_id;
+$_SESSION['quiz_questions'] = $question_ids_array;
+$_SESSION['quiz_start_time'] = time();
 ?>
 <!DOCTYPE html>
 <html lang="en">

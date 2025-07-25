@@ -10,22 +10,16 @@ $success = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
-
-    $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $stmt->store_result();
-
-    if ($stmt->num_rows > 0) {
-        $stmt->bind_result($userId);
-        $stmt->fetch();
+    $stmt = $conn->prepare("SELECT id FROM users WHERE email = :email");
+    $stmt->execute([':email' => $email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($user) {
+        $userId = $user['id'];
         $token = bin2hex(random_bytes(50));
         date_default_timezone_set('Asia/Kolkata');
         $expires = date("Y-m-d H:i:s", strtotime("+10 minutes"));
-
-        $stmt = $conn->prepare("UPDATE users SET pass_reset_token = ?, reset_expires = ? WHERE id = ?");
-        $stmt->bind_param("ssi", $token, $expires, $userId);
-        $stmt->execute();
+        $stmt = $conn->prepare("UPDATE users SET pass_reset_token = :token, reset_expires = :expires WHERE id = :id");
+        $stmt->execute([':token' => $token, ':expires' => $expires, ':id' => $userId]);
 
         $mail = new PHPMailer(true);
         try {

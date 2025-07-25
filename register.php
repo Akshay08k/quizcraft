@@ -14,34 +14,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if ($password !== $confirm_password) {
     $error_message = "Passwords do not match!";
   } else {
-    $check_email_sql = "SELECT * FROM users WHERE email = ?";
+    $check_email_sql = "SELECT * FROM users WHERE email = :email";
     $stmt = $conn->prepare($check_email_sql);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $stmt->execute([':email' => $email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($result->num_rows > 0) {
+    if ($user) {
       $error_message = "An account with this email already exists!";
     } else {
-      $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-      if ($stmt) {
-        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-        $stmt->bind_param("sss", $username, $email, $hashedPassword);
-
-        if ($stmt->execute()) {
-          $success_message = "Registration successful! You can now log in" . " <a href='index.php' class='text-blue-500 hover:underline'>here</a>";
-        } else {
-          $error_message = "Error: " . $stmt->error;
-        }
-        $stmt->close();
+      $insert_sql = "INSERT INTO users (username, email, password) VALUES (:username, :email, :password)";
+      $stmt = $conn->prepare($insert_sql);
+      $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+      if ($stmt->execute([':username' => $username, ':email' => $email, ':password' => $hashedPassword])) {
+        $success_message = "Registration successful! You can now log in <a href='index.php' class='text-blue-500 hover:underline'>here</a>";
       } else {
-        $error_message = "Error preparing statement: " . $conn->error;
+        $error_message = "Error: " . $stmt->errorInfo()[2];
       }
     }
   }
 }
-
-$conn->close();
 ?>
 
 <!DOCTYPE html>
