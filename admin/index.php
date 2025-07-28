@@ -3,7 +3,7 @@ session_start();
 
 // Redirect to login if admin not logged in
 if (empty($_SESSION['admin_logged_in'])) {
-    header('Location: login.php');
+    header('Location: /admin/login.php');
     exit();
 }
 

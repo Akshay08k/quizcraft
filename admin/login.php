@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     // Prepare and execute safely
-    $stmt = $conn->prepare('SELECT * FROM users WHERE email = :email AND is_admin = 1');
+    $stmt = $conn->prepare('SELECT * FROM users WHERE email = :email AND is_admin = TRUE');
     $stmt->execute([':email' => $email]);
     $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
