@@ -1,9 +1,14 @@
-<?php include 'db.php'; ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <?php
 include 'db.php';
 session_start();
+
+if(!isset($_SESSION['user_id'])) {
+    header('Location: index.php');
+    exit();
+}
 $sql = "SELECT * FROM users WHERE id = :id";
 $stmt = $conn->prepare($sql);
 $stmt->execute([':id' => $_SESSION['user_id']]);
@@ -21,14 +26,37 @@ $stmt->execute([':id' => $_SESSION['user_id']]);
 $avgResult = $stmt->fetch(PDO::FETCH_ASSOC);
 $avgScore = $avgResult['avg_score'];
 
+$sql = "SELECT SUM(score) as total_score FROM quiz_attempts WHERE user_id = :id";
+$stmt = $conn->prepare($sql);
+$stmt->execute([':id' => $_SESSION['user_id']]);
+$userTotalScore = $stmt->fetch(PDO::FETCH_ASSOC)['total_score'] ?? 0;
 
+$sql = "SELECT user_id, SUM(score) as total_score 
+        FROM quiz_attempts 
+        GROUP BY user_id 
+        ORDER BY total_score DESC";
+$stmt = $conn->prepare($sql);
+$stmt->execute();
+$leaderboard = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$rank = 0;
+foreach ($leaderboard as $index => $row) {
+    if ($row['user_id'] == $_SESSION['user_id']) {
+        $rank = $index + 1; // rank is index+1 (since index starts at 0)
+        break;
+    }
+}
+
+if ($rank == 0) {
+    $rank = count($leaderboard) + 1;
+}
 
 $userInfo = [
     "username" => $_SESSION['username'],
     "email" => $userData['email'],
     "totalQuiz" => $totalQuizCount,
     "avgScore" => $avgScore,
-    "leaderBoardRank" => $_SESSION['UserRank']
+    "leaderBoardRank" => $rank
 ];
 ?>
 
@@ -153,7 +181,9 @@ $userInfo = [
                                             </span>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4"><?php echo $quiz['completed_at']; ?></td>
+                                    <td class="px-6 py-4"><?php echo date('M d, Y H:i', strtotime($quiz['completed_at'])); ?>
+</td>
+                                    
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
