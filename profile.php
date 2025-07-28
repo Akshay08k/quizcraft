@@ -1,9 +1,11 @@
+<?php
 
+include 'db.php';
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <?php
-include 'db.php';
-session_start();
 
 if(!isset($_SESSION['user_id'])) {
     header('Location: index.php');
