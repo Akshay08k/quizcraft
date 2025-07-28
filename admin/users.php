@@ -3,22 +3,35 @@ session_start();
 require_once('../db.php');
 
 // Check if the admin is logged in
-if ($_SESSION['admin_logged_in'] !== true) {
+if (empty($_SESSION['admin_logged_in'])) {
     header('Location: login.php');
     exit();
 }
 
-// Fetch all users
-$users_query = "SELECT * FROM users";
-$users_result = $conn->query($users_query);
-if (!$users_result) {
-    die("Failed to fetch users");
-}
+// Fetch all users with total attempts & average score in one go
+$users_query = "
+    SELECT 
+        u.id, 
+        u.username, 
+        u.email,
+        COUNT(qa.id) AS total_attempts,
+        COALESCE(AVG(qa.score), 0) AS average_score
+    FROM 
+        users u
+    LEFT JOIN 
+        quiz_attempts qa ON u.id = qa.user_id
+    GROUP BY 
+        u.id
+    ORDER BY 
+        u.id DESC
+";
+$users_stmt = $conn->query($users_query);
+$users = $users_stmt ? $users_stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>QuizCraft - User Management</title>
@@ -27,11 +40,17 @@ if (!$users_result) {
 </head>
 
 <body class="bg-gray-100">
-    <?php include('./sidebar.php'); ?>
+<?php include('./sidebar.php'); ?>
 
-    <div class="ml-64 p-8">
-        <div class="bg-white shadow-md rounded-lg p-8">
-            <h1 class="text-3xl font-bold mb-6">User Management</h1>
+<div class="ml-64 p-8">
+    <div class="bg-white shadow-md rounded-lg p-8">
+        <h1 class="text-3xl font-bold mb-6">User Management</h1>
+
+        <?php if (empty($users)): ?>
+            <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative mt-4 text-center">
+                No users found.
+            </div>
+        <?php else: ?>
             <div class="bg-white shadow-md rounded">
                 <table class="w-full">
                     <thead class="bg-gray-200">
@@ -44,47 +63,33 @@ if (!$users_result) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($user = $users_result->fetch(PDO::FETCH_ASSOC)): ?>
-                            <?php
-                            // Fetch quiz attempt details for each user
-                            $user_id = $user['id'];
-                            $attempts_query = "SELECT qa.score FROM quiz_attempts qa WHERE qa.user_id = :id";
-                            $attempts_stmt = $conn->prepare($attempts_query);
-                            $attempts_stmt->execute([':id' => $user_id]);
-                            $attempts = $attempts_stmt->fetchAll(PDO::FETCH_ASSOC);
-                            $total_attempts = count($attempts);
-                            $total_score = 0;
-                            foreach ($attempts as $attempt) {
-                                $total_score += $attempt['score'];
-                            }
-                            $average_score = $total_attempts > 0 ? round($total_score / $total_attempts, 2) : 0;
-                            ?>
-                            <tr class="border-b">
-                                <td class="p-3"><?php echo htmlspecialchars($user['username']); ?></td>
-                                <td class="p-3"><?php echo htmlspecialchars($user['email']); ?></td>
-                                <td class="p-3"><?php echo $total_attempts; ?></td>
-                                <td class="p-3"><?php echo $average_score; ?>%</td>
-                                <td class="p-3">
-                                    <a href="user_details.php?id=<?php echo $user['id']; ?>"
-                                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">View</a>
-                                    <button onclick="confirmDeleteUser(<?php echo $user['id']; ?>)"
+                    <?php foreach ($users as $user): ?>
+                        <tr class="border-b">
+                            <td class="p-3"><?php echo htmlspecialchars($user['username']); ?></td>
+                            <td class="p-3"><?php echo htmlspecialchars($user['email']); ?></td>
+                            <td class="p-3"><?php echo (int)$user['total_attempts']; ?></td>
+                            <td class="p-3"><?php echo number_format($user['average_score'], 2); ?>%</td>
+                            <td class="p-3">
+                                <a href="user_details.php?id=<?php echo (int)$user['id']; ?>"
+                                   class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">View</a>
+                                <button onclick="confirmDeleteUser(<?php echo (int)$user['id']; ?>)"
                                         class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Delete</button>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
-        </div>
+        <?php endif; ?>
     </div>
+</div>
 
-    <script>
-        function confirmDeleteUser(userId) {
-            if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-                window.location.href = 'delete_user.php?id=' + userId;
-            }
-        }
-    </script>
+<script>
+function confirmDeleteUser(userId) {
+    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+        window.location.href = 'delete_user.php?id=' + userId;
+    }
+}
+</script>
 </body>
-
 </html>

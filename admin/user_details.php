@@ -3,7 +3,7 @@ session_start();
 require_once('../db.php');
 
 // Check if the admin is logged in
-if ($_SESSION['admin_logged_in'] !== true) {
+if (empty($_SESSION['admin_logged_in'])) {
     header('Location: login.php');
     exit();
 }
@@ -12,7 +12,7 @@ if ($_SESSION['admin_logged_in'] !== true) {
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     die("Invalid user ID");
 }
-$user_id = intval($_GET['id']);
+$user_id = (int) $_GET['id'];
 
 // Fetch user details
 $user_query = "SELECT * FROM users WHERE id = :id";
@@ -23,6 +23,8 @@ $user = $user_stmt->fetch(PDO::FETCH_ASSOC);
 if (!$user) {
     die("User not found");
 }
+
+// Fetch quiz attempts
 $attempts_query = "
     SELECT 
         qa.id, 
@@ -44,12 +46,17 @@ $attempts_query = "
 $attempts_stmt = $conn->prepare($attempts_query);
 $attempts_stmt->execute([':id' => $user_id]);
 $attempts = $attempts_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Calculate stats
 $total_attempts = count($attempts);
 $total_score = 0;
 $categories_played = [];
+
 foreach ($attempts as $attempt) {
     $total_score += $attempt['score'];
-    $categories_played[$attempt['category']] = true;
+    if (isset($attempt['category'])) {
+        $categories_played[$attempt['category']] = true;
+    }
 }
 $average_score = $total_attempts > 0 ? round($total_score / $total_attempts, 2) : 0;
 ?>
@@ -88,7 +95,7 @@ $average_score = $total_attempts > 0 ? round($total_score / $total_attempts, 2) 
                 </div>
                 <div class="bg-green-100 p-4 rounded">
                     <h3 class="text-lg font-semibold">Average Score</h3>
-                    <p class="text-2xl font-bold"><?php echo $average_score; ?>%</p>
+                    <p class="text-2xl font-bold"><?php echo number_format($average_score, 2); ?>%</p>
                 </div>
                 <div class="bg-purple-100 p-4 rounded">
                     <h3 class="text-lg font-semibold">Categories Played</h3>
@@ -97,30 +104,35 @@ $average_score = $total_attempts > 0 ? round($total_score / $total_attempts, 2) 
             </div>
 
             <h2 class="text-2xl font-bold mb-4">Quiz Attempt History</h2>
-            <div class="bg-white shadow-md rounded">
-                <table class="w-full">
-                    <thead class="bg-gray-200">
-                        <tr>
-                            <th class="p-3 text-left">Quiz Title</th>
-                            <th class="p-3 text-left">Category</th>
-                            <th class="p-3 text-left">Score</th>
-                            <th class="p-3 text-left">Completed At</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        foreach ($attempts as $attempt):
-                            ?>
-                            <tr class="border-b">
-                                <td class="p-3"><?php echo htmlspecialchars($attempt['quiz_title']); ?></td>
-                                <td class="p-3"><?php echo htmlspecialchars($attempt['category']); ?></td>
-                                <td class="p-3"><?php echo $attempt['score']; ?>%</td>
-                                <td class="p-3"><?php echo date('d M Y H:i', strtotime($attempt['completed_at'])); ?></td>
+
+            <?php if ($total_attempts === 0): ?>
+                <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative mt-4 text-center">
+                    This user hasn't attempted any quizzes yet.
+                </div>
+            <?php else: ?>
+                <div class="bg-white shadow-md rounded">
+                    <table class="w-full">
+                        <thead class="bg-gray-200">
+                            <tr>
+                                <th class="p-3 text-left">Quiz Title</th>
+                                <th class="p-3 text-left">Category</th>
+                                <th class="p-3 text-left">Score</th>
+                                <th class="p-3 text-left">Completed At</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($attempts as $attempt): ?>
+                                <tr class="border-b">
+                                    <td class="p-3"><?php echo htmlspecialchars($attempt['quiz_title']); ?></td>
+                                    <td class="p-3"><?php echo htmlspecialchars($attempt['category']); ?></td>
+                                    <td class="p-3"><?php echo $attempt['score']; ?>%</td>
+                                    <td class="p-3"><?php echo date('d M Y H:i', strtotime($attempt['completed_at'])); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
 
             <div class="mt-6">
                 <a href="users.php" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">

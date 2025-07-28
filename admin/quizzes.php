@@ -1,11 +1,11 @@
 <?php
 require_once('../db.php');
 session_start();
-if ($_SESSION['admin_logged_in'] !== true) {
+
+if (empty($_SESSION['admin_logged_in'])) {
     header('Location: login.php');
     exit();
 }
-
 
 $query = "
     SELECT 
@@ -21,21 +21,16 @@ $query = "
     ORDER BY 
         q.id DESC
 ";
-$result = $conn->query($query);
+$stmt = $conn->prepare($query);
+$stmt->execute();
 
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $quiz_id = intval($_GET['delete']);
     $conn->beginTransaction();
     try {
-        $stmt = $conn->prepare("DELETE FROM questions WHERE quiz_id = :id");
-        $stmt->execute([':id' => $quiz_id]);
-
-        $stmt = $conn->prepare("DELETE FROM quiz_attempts WHERE quiz_id = :id");
-        $stmt->execute([':id' => $quiz_id]);
-
-        $stmt = $conn->prepare("DELETE FROM quizzes WHERE id = :id");
-        $stmt->execute([':id' => $quiz_id]);
-
+        $conn->prepare("DELETE FROM questions WHERE quiz_id = :id")->execute([':id' => $quiz_id]);
+        $conn->prepare("DELETE FROM quiz_attempts WHERE quiz_id = :id")->execute([':id' => $quiz_id]);
+        $conn->prepare("DELETE FROM quizzes WHERE id = :id")->execute([':id' => $quiz_id]);
         $conn->commit();
         header('Location: quizzes.php?success=deleted');
         exit();
@@ -45,6 +40,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         exit();
     }
 }
+
 ?>
 
 <!DOCTYPE html>

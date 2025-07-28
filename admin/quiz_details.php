@@ -1,62 +1,69 @@
 <?php
 session_start();
 // Authentication check
-if ($_SESSION['admin_logged_in'] !== true) {
+if (empty($_SESSION['admin_logged_in'])) {
     header('Location: login.php');
     exit();
 }
+
 require_once('../db.php');
 
-$quiz_id = intval($_GET['id']);
+$quiz_id = intval($_GET['id'] ?? 0);
 
 // Fetch quiz details
-$quiz_query = "SELECT q.id, q.name, q.category_id FROM quizzes q WHERE q.id = :id";
-$quiz_stmt = $conn->prepare($quiz_query);
+$quiz_stmt = $conn->prepare("SELECT id, name, category_id FROM quizzes WHERE id = :id");
 $quiz_stmt->execute([':id' => $quiz_id]);
 $quiz = $quiz_stmt->fetch(PDO::FETCH_ASSOC);
 
+if (!$quiz) {
+    die("Quiz not found.");
+}
+
 // Fetch existing questions
-$questions_query = "SELECT id, question_text, options, correct_answer FROM questions WHERE quiz_id = :id";
-$questions_stmt = $conn->prepare($questions_query);
+$questions_stmt = $conn->prepare("SELECT id, question_text, options, correct_answer FROM questions WHERE quiz_id = :id");
 $questions_stmt->execute([':id' => $quiz_id]);
 $questions = $questions_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Handle form submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn->beginTransaction();
 
     try {
-        // Update quiz basic details
-        $quiz_title = $_POST['title'];
-        $update_quiz_query = "UPDATE quizzes SET name = :title WHERE id = :id";
-        $update_stmt = $conn->prepare($update_quiz_query);
-        $update_stmt->execute([':title' => $quiz_title, ':id' => $quiz_id]);
+        // Update quiz title
+        $quiz_title = $_POST['title'] ?? '';
+        $update_stmt = $conn->prepare("UPDATE quizzes SET name = :title WHERE id = :id");
+        $update_stmt->execute([
+            ':title' => $quiz_title,
+            ':id' => $quiz_id
+        ]);
 
-        // Process questions
-        if (isset($_POST['questions'])) {
+        // Process each question
+        if (!empty($_POST['questions'])) {
             foreach ($_POST['questions'] as $question_data) {
-                // Determine if existing or new question
-                $question_id = isset($question_data['id']) ? intval($question_data['id']) : 0;
-                $question_text = $question_data['text'];
-                $correct_answer = $question_data['correct_answer'];
-
-                // Prepare options
-                $options = json_encode($question_data['options']); // Convert array to JSON
-                $options = $conn->quote($options); // Escape the JSON string
+                $question_id = intval($question_data['id'] ?? 0);
+                $question_text = $question_data['text'] ?? '';
+                $correct_answer = $question_data['correct_answer'] ?? '';
+                $options = json_encode($question_data['options'] ?? []);
 
                 if ($question_id > 0) {
-                    $update_query = "UPDATE questions SET question_text = :text, options = :options, correct_answer = :correct WHERE id = :qid";
-                    $update_stmt = $conn->prepare($update_query);
-                    $update_stmt->execute([
+                    // Update existing
+                    $update_q_stmt = $conn->prepare("
+                        UPDATE questions 
+                        SET question_text = :text, options = :options, correct_answer = :correct 
+                        WHERE id = :qid
+                    ");
+                    $update_q_stmt->execute([
                         ':text' => $question_text,
                         ':options' => $options,
                         ':correct' => $correct_answer,
                         ':qid' => $question_id
                     ]);
                 } else {
-                    // Insert new question
-                    $insert_query = "INSERT INTO questions (quiz_id, question_text, options, correct_answer) VALUES (:quiz_id, :text, :options, :correct)";
-                    $insert_stmt = $conn->prepare($insert_query);
+                    // Insert new
+                    $insert_stmt = $conn->prepare("
+                        INSERT INTO questions (quiz_id, question_text, options, correct_answer) 
+                        VALUES (:quiz_id, :text, :options, :correct)
+                    ");
                     $insert_stmt->execute([
                         ':quiz_id' => $quiz_id,
                         ':text' => $question_text,
@@ -72,12 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     } catch (Exception $e) {
         $conn->rollBack();
-        $error_message = "Failed to update quiz: " . $e->getMessage();
+        $error_message = "Failed to update quiz: " . htmlspecialchars($e->getMessage());
     }
 }
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
