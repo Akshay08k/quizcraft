@@ -100,7 +100,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($quiz = $result->fetch(PDO::FETCH_ASSOC)): ?>
+                    <?php while ($quiz = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
                         <tr class="border-b">
                             <td class="p-3"><?php echo $quiz['id']; ?></td>
                             <td class="p-3"><?php echo htmlspecialchars($quiz['name']); ?></td>
@@ -128,8 +128,8 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
                 </tbody>
             </table>
         </div>
+<?php if ($stmt->rowCount() == 0): ?>
 
-        <?php if ($result->rowCount() == 0): ?>
             <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative mt-4 text-center">
                 No quizzes found. <a href="create_quiz.php" class="underline">Create your first quiz</a>
             </div>
